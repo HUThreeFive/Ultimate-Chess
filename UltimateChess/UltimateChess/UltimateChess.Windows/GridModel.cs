@@ -20,13 +20,75 @@ namespace UltimateChess
             capturedBlack.Clear();
             capturedWhite.Clear();
         }
-        
         public List<Coordinate> PossibleMoves(Coordinate coord, Team player)
         {
-            List<Coordinate> possibleMoves = new List<Coordinate>();
+            List<Coordinate> possibleMoves;
+
+            //Call appropriate piece function
+            switch (grid[coord.row, coord.col].pieceType)
+            {
+                case Piece.Knight: possibleMoves = GetKnightMoves(coord);
+                    break;
+                case Piece.Queen: possibleMoves = GetQueenMoves(coord);
+                    break;
+            }
+
+            //Foreach loop through each coordinate in possibleMoves list (validate and process coordinate's contents)
 
             return possibleMoves;
         }
+
+        private List<Coordinate> GetQueenMoves(Coordinate baseCoord)
+        {
+            List<Coordinate> possibleMoves = new List<Coordinate>();
+
+            for (int i = 1; i < 8; i++)
+            {
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col });       //Down Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col });       //Up Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col - i });       //Left Horizontally
+                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col + i });       //Down Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col - i });   //Diagonal Up-Left
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col + i });   //Diagonal Up-Right
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col + i });   //Diagonal Down-Right
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col - i });   //Diagonal Down-Left
+            }
+
+            return possibleMoves;
+        }
+
+        /// <summary>
+        /// Calculate and return all coordinates for the knight piece at the passed coordinate
+        /// </summary>
+        /// <param name="coord"></param>
+        /// <returns></returns>
+        private List<Coordinate> GetKnightMoves(Coordinate baseCoord)
+        {
+            List<Coordinate> possibleMoves = new List<Coordinate>();
+            Coordinate newCoordinate;
+
+            //Think clockwise rotation
+            newCoordinate = new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 2 };     //Left-Bottom
+            possibleMoves.Add(newCoordinate);
+            newCoordinate = new Coordinate { row = baseCoord.row - 1, col = baseCoord.col - 2 };     //Left-Top
+            possibleMoves.Add(newCoordinate);
+            newCoordinate = new Coordinate { row = baseCoord.row - 2, col = baseCoord.col - 1 };     //Top-Left
+            possibleMoves.Add(newCoordinate);
+            newCoordinate = new Coordinate { row = baseCoord.row - 2, col = baseCoord.col + 1 };     //Top-Right
+            possibleMoves.Add(newCoordinate);
+            newCoordinate = new Coordinate { row = baseCoord.row - 1, col = baseCoord.col + 2 };     //Right-Top
+            possibleMoves.Add(newCoordinate);
+            newCoordinate = new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 2 };     //Right-Bottom
+            possibleMoves.Add(newCoordinate);
+            newCoordinate = new Coordinate { row = baseCoord.row + 2, col = baseCoord.col + 1 };     //Bottom-Right
+            possibleMoves.Add(newCoordinate);
+            newCoordinate = new Coordinate { row = baseCoord.row + 2, col = baseCoord.col - 1 };     //Bottom-Left
+            possibleMoves.Add(newCoordinate);
+
+            return possibleMoves;
+        }
+        
+        
 
         private void InitializeGrid()
         {

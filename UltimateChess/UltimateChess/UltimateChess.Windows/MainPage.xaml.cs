@@ -22,6 +22,9 @@ namespace UltimateChess
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        public Coordinate firstClick;
+        public Coordinate secondClick;
+
         public MainPage()
         {
             this.InitializeComponent();
