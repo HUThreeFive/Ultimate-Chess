@@ -31,9 +31,63 @@ namespace UltimateChess
                     break;
                 case Piece.Queen: possibleMoves = GetQueenMoves(coord);
                     break;
+                case Piece.Bishop: possibleMoves = GetBishopMoves(coord);
+                    break;
+                case Piece.Rook: possibleMoves = GetRookMoves(coord);
+                    break;
+                case Piece.King: possibleMoves = GetKingMoves(coord);
+                    break;
+                case Piece.Pawn: possibleMoves = GetPawnMoves(coord);
+                    break;
             }
 
             //Foreach loop through each coordinate in possibleMoves list (validate and process coordinate's contents)
+
+            return possibleMoves;
+        }
+
+        private List<Coordinate> GetKingMoves(Coordinate baseCoord)
+        {
+            List<Coordinate> possibleMoves = new List<Coordinate>();
+
+            possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col });       //Down Vertically
+            possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col });       //Up Vertically
+            possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col - 1 });       //Left Horizontally
+            possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col + 1 });       //Down Vertically
+            possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col - 1 });   //Diagonal Up-Left
+            possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col + 1 });   //Diagonal Up-Right
+            possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 1 });   //Diagonal Down-Right
+            possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 1 });   //Diagonal Down-Left
+
+            return possibleMoves;
+        }
+
+        private List<Coordinate> GetRookMoves(Coordinate baseCoord)
+        {
+            List<Coordinate> possibleMoves = new List<Coordinate>();
+
+            for (int i = 1; i < 8; i++)
+            {
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col });       //Down Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col });       //Up Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col - i });       //Left Horizontally
+                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col + i });       //Down Vertically
+            }
+
+            return possibleMoves;
+        }
+
+        private List<Coordinate> GetBishopMoves(Coordinate baseCoord)
+        {
+            List<Coordinate> possibleMoves = new List<Coordinate>();
+
+            for (int i = 1; i < 8; i++)
+            {
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col - i });   //Diagonal Up-Left
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col + i });   //Diagonal Up-Right
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col + i });   //Diagonal Down-Right
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col - i });   //Diagonal Down-Left
+            }
 
             return possibleMoves;
         }
@@ -113,8 +167,8 @@ namespace UltimateChess
 
             for (int i = 0; i < 8; i++)
             {
-                grid[1, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.White, position = new Coordinate { row = 1, col = i } };
-                grid[6, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.Black, position = new Coordinate { row = 6, col = i } };
+                grid[1, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.White, position = new Coordinate { row = 1, col = i }, hasMoved = false };
+                grid[6, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.Black, position = new Coordinate { row = 6, col = i }, hasMoved = false };
             }
 
             for (int R = 2; R < 6; R++)

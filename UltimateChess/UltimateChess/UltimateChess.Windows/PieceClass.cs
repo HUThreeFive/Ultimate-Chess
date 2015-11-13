@@ -11,6 +11,7 @@ namespace UltimateChess
         public Piece pieceType;
         public Team team;
         public Coordinate position;
+        public bool hasMoved;
     }
     
     enum Piece
