@@ -186,7 +186,14 @@ namespace UltimateChess
 
         private void InitializeGrid()
         {
-            Array.Clear(grid, 0, grid.Length);
+            if (grid != null)
+            {
+                Array.Clear(grid, 0, grid.Length);
+            }
+            else
+            {
+                grid = new PieceClass[NUM_CELLS,NUM_CELLS];
+            }
 
             grid[0, 0] = new PieceClass { pieceType = Piece.Rook, team = Team.White, position = new Coordinate { row = 0, col = 0 } };
             grid[0, 1] = new PieceClass { pieceType = Piece.Knight, team = Team.White, position = new Coordinate { row = 0, col = 1 } };
@@ -216,7 +223,7 @@ namespace UltimateChess
             {
                 for (int C = 0; C < 8; C++)
                 {
-                    grid[R, C] = new PieceClass { pieceType = Piece.Blank, position = new Coordinate { row = R, col = C } };
+                    grid[R, C] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = new Coordinate { row = R, col = C } };
                 }
             }
         }

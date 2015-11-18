@@ -14,7 +14,7 @@ namespace UltimateChess
         public bool hasMoved;
     }
     
-    enum Piece
+    public enum Piece
 	{
 	    King,
         Queen,
@@ -25,7 +25,7 @@ namespace UltimateChess
         Blank
 	}
 
-    enum Team
+    public enum Team
     {
         White,
         Black,
