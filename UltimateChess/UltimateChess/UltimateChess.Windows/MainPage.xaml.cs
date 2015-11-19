@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 
@@ -96,7 +97,16 @@ namespace UltimateChess
                 flipflop = !flipflop;
             }
 
+            Image blackKing = new Image();
 
+            blackKing.Source = new BitmapImage(new Uri("ms-appx:///Images/King_Black.png"));
+            blackKing.Width = blackKing.Height = squareSize;
+            
+
+            Canvas.SetTop(blackKing, 0);
+            Canvas.SetLeft(blackKing, 3 * squareSize);
+            Canvas.SetZIndex(blackKing, 56);
+            CanvasBoard.Children.Add(blackKing);
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
