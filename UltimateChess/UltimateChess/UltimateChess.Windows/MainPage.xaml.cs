@@ -31,8 +31,8 @@ namespace UltimateChess
         public MainPage()
         {
             this.InitializeComponent();
-            GridModel Grid = new GridModel();
-            Grid.Start();
+            GridModel grid = new GridModel();
+            grid.Start();
 
             LayoutGridSetUp();
         }

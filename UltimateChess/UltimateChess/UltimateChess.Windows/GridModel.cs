@@ -10,6 +10,8 @@ namespace UltimateChess
     {
         private const int NUM_CELLS = 8;
         private PieceClass[,] grid;
+        public bool isBlackInCheck = false;
+        public bool isWhiteInCheck = false;
         public List<PieceClass> whiteCaptured = new List<PieceClass>();
         public List<PieceClass> blackCaptured = new List<PieceClass>();
         private List<PieceClass> whiteActive = new List<PieceClass>();
@@ -190,12 +192,14 @@ namespace UltimateChess
         {
             if(grid[destination.row, destination.col].team == Team.Blank)
             {
-                Move(playerPiece, destination);
+                Move(playerPiece, destination, player);
             }
             else
             {
                 Attack(playerPiece, destination, player);
             }
+
+            CheckForCheck(player);
         }
 
         private void Attack(Coordinate source, Coordinate destination, Team player)
@@ -229,6 +233,49 @@ namespace UltimateChess
             grid[destination.row, destination.col].position = destination;
 
             grid[source.row, source.col] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = source };
+        }
+
+        private void CheckForCheck(Team player)
+        {
+            List<Coordinate> masterList = new List<Coordinate>();
+
+            //get teams possible moves
+            if(player == Team.White)
+            {
+                foreach(PieceClass piece in whiteActive)
+                {
+                    masterList.AddRange(PossibleMoves(piece.position, player));
+                }
+
+                //lamba expression to determine if the black king's coordinate is in the master list of possible move coordinates
+                if (masterList.Exists(x => x == blackActive.Find(z => z.pieceType == Piece.King).position))
+                {
+                    isBlackInCheck = true;
+                }
+                else
+                {
+                    isBlackInCheck = false;
+                }
+            }
+            else
+            {
+                foreach (PieceClass piece in blackActive)
+                {
+                    masterList.AddRange(PossibleMoves(piece.position, player));
+                }
+
+                //lamba expression to determine if the whiate king's coordinate is in the master list of possible move coordinates
+                if (masterList.Exists(x => x == whiteActive.Find(z => z.pieceType == Piece.King).position))
+                {
+                    isWhiteInCheck = true;
+                }
+                else
+                {
+                    isWhiteInCheck = false;
+                }
+            }
+
+            
         }
 
         private void InitializeGrid()
