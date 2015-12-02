@@ -10,14 +10,16 @@ namespace UltimateChess
     {
         private const int NUM_CELLS = 8;
         private PieceClass[,] grid;
-        public List<PieceClass> capturedWhite = new List<PieceClass>();
-        public List<PieceClass> capturedBlack = new List<PieceClass>();
+        public List<PieceClass> whiteCaptured = new List<PieceClass>();
+        public List<PieceClass> blackCaptured = new List<PieceClass>();
+        private List<PieceClass> whiteActive = new List<PieceClass>();
+        private List<PieceClass> blackActive = new List<PieceClass>();
         
         public void Start()
         {
             InitializeGrid();
-            capturedBlack.Clear();
-            capturedWhite.Clear();
+            blackCaptured.Clear();
+            whiteCaptured.Clear();
         }
 
         /// <summary>
@@ -184,6 +186,51 @@ namespace UltimateChess
             return possibleMoves;
         }
 
+        public void DetermineAction(Coordinate playerPiece, Coordinate destination, Team player)
+        {
+            if(grid[destination.row, destination.col].team == Team.Blank)
+            {
+                Move(playerPiece, destination);
+            }
+            else
+            {
+                Attack(playerPiece, destination, player);
+            }
+        }
+
+        private void Attack(Coordinate source, Coordinate destination, Team player)
+        {
+            if(player == Team.White)
+            {
+                whiteCaptured.Add(grid[destination.row, destination.col]);
+                blackActive.Remove(blackActive.Find(x => x.position == destination));
+            }
+            else
+            {
+                blackCaptured.Add(grid[destination.row, destination.col]);
+                whiteActive.Remove(whiteActive.Find(x => x.position == destination));
+            }
+
+            Move(source, destination, player);
+        }
+        
+        private void Move(Coordinate source, Coordinate destination, Team player)
+        {
+            grid[destination.row, destination.col] = grid[source.row, source.col];
+            if(player == Team.White)
+            {
+                whiteActive.Find(x => x.position == source).position = destination;
+            }
+            else
+            {
+                blackActive.Find(x => x.position == source).position = destination;
+            }
+
+            grid[destination.row, destination.col].position = destination;
+
+            grid[source.row, source.col] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = source };
+        }
+
         private void InitializeGrid()
         {
             if (grid != null)
@@ -225,6 +272,14 @@ namespace UltimateChess
                 {
                     grid[R, C] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = new Coordinate { row = R, col = C } };
                 }
+            }
+
+            for(int i = 0; i < 8; i++)
+            {
+                whiteActive.Add(grid[0, i]);
+                whiteActive.Add(grid[1, i]);
+                blackActive.Add(grid[6, i]);
+                blackActive.Add(grid[7, i]);
             }
         }
     }

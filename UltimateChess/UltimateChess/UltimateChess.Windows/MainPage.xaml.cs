@@ -97,15 +97,12 @@ namespace UltimateChess
                 flipflop = !flipflop;
             }
 
-            Image blackKing = new Image();
-
-            blackKing.Source = new BitmapImage(new Uri("ms-appx:///Images/King_Black.png"));
-            blackKing.Width = blackKing.Height = squareSize;
+            Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/King_Black.png")), Width = Height = squareSize };
             
 
             Canvas.SetTop(blackKing, 0);
             Canvas.SetLeft(blackKing, 3 * squareSize);
-            Canvas.SetZIndex(blackKing, 56);
+            Canvas.SetZIndex(blackKing, 1);
             CanvasBoard.Children.Add(blackKing);
         }
 
