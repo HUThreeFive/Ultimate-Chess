@@ -16,7 +16,7 @@ namespace UltimateChess
         public List<PieceClass> blackCaptured = new List<PieceClass>();
         private List<PieceClass> whiteActive = new List<PieceClass>();
         private List<PieceClass> blackActive = new List<PieceClass>();
-        
+
         public void Start()
         {
             InitializeGrid();
@@ -27,9 +27,9 @@ namespace UltimateChess
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="coord"></param>
-        /// <param name="player"></param>
-        /// <returns></returns>
+        /// <param name="coord">The coordinate of the selected piece</param>
+        /// <param name="player">The player making the move</param>
+        /// <returns>A list of coordinates that could be possible moves</returns>
         public List<Coordinate> PossibleMoves(Coordinate coord, Team player)
         {
             List<Coordinate> possibleMoves = new List<Coordinate>();
@@ -53,7 +53,7 @@ namespace UltimateChess
 
             foreach (Coordinate c in possibleMoves)
             {
-                if(c.row < 0 || c.row > 7 || c.col < 0 || c.col > 7)
+                if (c.row < 0 || c.row > 7 || c.col < 0 || c.col > 7)
                 {
                     possibleMoves.Remove(c);
                 }
@@ -62,6 +62,9 @@ namespace UltimateChess
                     possibleMoves.Remove(c);
                 }
             }
+
+            //function to check moves against putting own king in check
+            possibleMoves = WillKingBeInCheck(possibleMoves, coord, player);
 
             return possibleMoves;
         }
@@ -78,6 +81,8 @@ namespace UltimateChess
             possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col + 1 });   //Diagonal Up-Right
             possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 1 });   //Diagonal Down-Right
             possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 1 });   //Diagonal Down-Left
+
+            possibleMoves = ValidateKingMoves(possibleMoves, grid[baseCoord.row, baseCoord.col].team);
 
             return possibleMoves;
         }
@@ -168,7 +173,7 @@ namespace UltimateChess
 
             possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col });
 
-            if(!grid[baseCoord.row,baseCoord.col].hasMoved)
+            if (!grid[baseCoord.row, baseCoord.col].hasMoved)
             {
                 possibleMoves.Add(new Coordinate { row = baseCoord.row + 2, col = baseCoord.col });
             }
@@ -190,7 +195,7 @@ namespace UltimateChess
 
         public void DetermineAction(Coordinate playerPiece, Coordinate destination, Team player)
         {
-            if(grid[destination.row, destination.col].team == Team.Blank)
+            if (grid[destination.row, destination.col].team == Team.Blank)
             {
                 Move(playerPiece, destination, player);
             }
@@ -204,7 +209,7 @@ namespace UltimateChess
 
         private void Attack(Coordinate source, Coordinate destination, Team player)
         {
-            if(player == Team.White)
+            if (player == Team.White)
             {
                 whiteCaptured.Add(grid[destination.row, destination.col]);
                 blackActive.Remove(blackActive.Find(x => x.position == destination));
@@ -217,11 +222,11 @@ namespace UltimateChess
 
             Move(source, destination, player);
         }
-        
+
         private void Move(Coordinate source, Coordinate destination, Team player)
         {
             grid[destination.row, destination.col] = grid[source.row, source.col];
-            if(player == Team.White)
+            if (player == Team.White)
             {
                 whiteActive.Find(x => x.position == source).position = destination;
             }
@@ -240,9 +245,9 @@ namespace UltimateChess
             List<Coordinate> masterList = new List<Coordinate>();
 
             //get teams possible moves
-            if(player == Team.White)
+            if (player == Team.White)
             {
-                foreach(PieceClass piece in whiteActive)
+                foreach (PieceClass piece in whiteActive)
                 {
                     masterList.AddRange(PossibleMoves(piece.position, player));
                 }
@@ -274,8 +279,231 @@ namespace UltimateChess
                     isWhiteInCheck = false;
                 }
             }
+        }
 
-            
+        //remove the king's moves that would put it in check
+        private List<Coordinate> ValidateKingMoves(List<Coordinate> coordList, Team player)
+        {
+            List<Coordinate> masterList = new List<Coordinate>();
+
+            if (player == Team.White)
+            {
+                foreach (PieceClass piece in whiteActive)
+                {
+                    masterList.AddRange(PossibleMoves(piece.position, player));
+                }
+            }
+            else
+            {
+                foreach (PieceClass piece in blackActive)
+                {
+                    masterList.AddRange(PossibleMoves(piece.position, player));
+                }
+            }
+
+            foreach (Coordinate c in coordList)
+            {
+                if (masterList.Exists(x => x == c))
+                {
+                    coordList.Remove(coordList.Find(x => x == c));
+                }
+            }
+
+            return coordList;
+        }
+
+        //Function used to simulate a move for the WillKingBeInCheck function
+        private void SimulateMove(Coordinate source, Coordinate destination, Team player, ref PieceClass[,] copyOfGrid, List<PieceClass> whiteActiveCopy, List<PieceClass> blackActiveCopy)
+        {
+            if (copyOfGrid[destination.row, destination.col].team != Team.Blank)
+            {
+                //Remove attacked piece from respective active list
+                if (player == Team.White)
+                {
+                    blackActiveCopy.Remove(blackActiveCopy.Find(x => x.position == destination));
+                }
+                else
+                {
+                    whiteActiveCopy.Remove(whiteActiveCopy.Find(x => x.position == destination));
+                }
+            }
+
+            copyOfGrid[destination.row, destination.col] = copyOfGrid[source.row, source.col];
+
+            if (player == Team.White)
+            {
+                whiteActiveCopy.Find(x => x.position == source).position = destination;
+            }
+            else
+            {
+                blackActiveCopy.Find(x => x.position == source).position = destination;
+            }
+
+            copyOfGrid[destination.row, destination.col].position = destination;
+            copyOfGrid[source.row, source.col] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = source };
+        }
+
+        //Get pawn's simulated moves from the copy of the grid
+        private List<Coordinate> GetPawnMoves(Coordinate baseCoord, PieceClass[,] copyOfGrid)
+        {
+            List<Coordinate> possibleMoves = new List<Coordinate>();
+
+            possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col });
+
+            if (!copyOfGrid[baseCoord.row, baseCoord.col].hasMoved)
+            {
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + 2, col = baseCoord.col });
+            }
+
+            if (copyOfGrid[baseCoord.row + 1, baseCoord.col - 1].team != copyOfGrid[baseCoord.row, baseCoord.col].team &&
+                copyOfGrid[baseCoord.row + 1, baseCoord.col - 1].team != Team.Blank)
+            {
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 1 });
+            }
+
+            if (copyOfGrid[baseCoord.row + 1, baseCoord.col + 1].team != copyOfGrid[baseCoord.row, baseCoord.col].team &&
+                copyOfGrid[baseCoord.row + 1, baseCoord.col + 1].team != Team.Blank)
+            {
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 1 });
+            }
+
+            return possibleMoves;
+        }
+
+        //Simulation of possible moves
+        public List<Coordinate> PossibleMoves(Coordinate coord, Team player, ref PieceClass[,] copyOfGrid)
+        {
+            List<Coordinate> possibleMoves = new List<Coordinate>();
+
+            //Call appropriate piece function
+            switch (copyOfGrid[coord.row, coord.col].pieceType)
+            {
+                case Piece.King: possibleMoves = GetKingMoves(coord);
+                    break;
+                case Piece.Queen: possibleMoves = GetQueenMoves(coord);
+                    break;
+                case Piece.Bishop: possibleMoves = GetBishopMoves(coord);
+                    break;
+                case Piece.Knight: possibleMoves = GetKnightMoves(coord);
+                    break;
+                case Piece.Rook: possibleMoves = GetRookMoves(coord);
+                    break;
+                case Piece.Pawn: possibleMoves = GetPawnMoves(coord);
+                    break;
+            }
+
+            foreach (Coordinate c in possibleMoves)
+            {
+                if (c.row < 0 || c.row > 7 || c.col < 0 || c.col > 7)
+                {
+                    possibleMoves.Remove(c);
+                }
+                else if (copyOfGrid[c.row, c.col].team == player)
+                {
+                    possibleMoves.Remove(c);
+                }
+            }
+
+            return possibleMoves;
+        }
+
+        //Check for check with a copy of the grid
+        private void CheckForCheck(Team player, ref PieceClass[,] copyOfGrid, List<PieceClass> whiteActiveCopy, List<PieceClass> blackActiveCopy)
+        {
+            List<Coordinate> masterList = new List<Coordinate>();
+
+            //get teams possible moves
+            if (player == Team.White)
+            {
+                foreach (PieceClass piece in whiteActiveCopy)
+                {
+                    masterList.AddRange(PossibleMoves(piece.position, player, ref copyOfGrid));
+                }
+
+                //lamba expression to determine if the black king's coordinate is in the master list of possible move coordinates
+                if (masterList.Exists(x => x == blackActiveCopy.Find(z => z.pieceType == Piece.King).position))
+                {
+                    isBlackInCheck = true;
+                }
+                else
+                {
+                    isBlackInCheck = false;
+                }
+            }
+            else
+            {
+                foreach (PieceClass piece in blackActiveCopy)
+                {
+                    masterList.AddRange(PossibleMoves(piece.position, player, ref copyOfGrid));
+                }
+
+                //lamba expression to determine if the whiate king's coordinate is in the master list of possible move coordinates
+                if (masterList.Exists(x => x == whiteActiveCopy.Find(z => z.pieceType == Piece.King).position))
+                {
+                    isWhiteInCheck = true;
+                }
+                else
+                {
+                    isWhiteInCheck = false;
+                }
+            }
+        }
+
+        private List<Coordinate> WillKingBeInCheck(List<Coordinate> masterList, Coordinate source, Team player)
+        {
+            PieceClass[,] copyOfGrid = grid;
+            List<PieceClass> whiteActiveCopy = whiteActive;
+            List<PieceClass> blackActiveCopy = blackActive;
+            bool isBlackInCheckCopy = isBlackInCheck;
+            bool isWhiteInCheckCopy = isWhiteInCheck;
+
+            //Simulate move and check for check
+            foreach (Coordinate move in masterList)
+            {
+                SimulateMove(source, move, player, ref copyOfGrid, whiteActiveCopy, blackActiveCopy);
+                CheckForCheck(player, ref copyOfGrid, whiteActiveCopy, blackActiveCopy);
+
+                if (isBlackInCheck || isWhiteInCheck)
+                {
+                    masterList.Remove(masterList.Find(x => x == move));
+                }
+
+                isBlackInCheck = isBlackInCheckCopy;
+                isWhiteInCheck = isWhiteInCheckCopy;
+            }
+
+            return masterList;
+        }
+
+        public bool isCheckMate(Team player)
+        {
+            List<Coordinate> moves = new List<Coordinate>();
+
+            //Search the active list for pieces that have possible moves that will remove the "In Check" condition
+            if (player == Team.White)
+            {
+                foreach (PieceClass piece in whiteActive)
+                {
+                    moves.AddRange(PossibleMoves(piece.position, player));
+                }
+            }
+            else
+            {
+                foreach (PieceClass piece in whiteActive)
+                {
+                    moves.AddRange(PossibleMoves(piece.position, player));
+                }
+            }
+
+            //If there are no possible moves then CHECKMATE
+            if (moves.Count() > 0)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         private void InitializeGrid()
@@ -286,7 +514,7 @@ namespace UltimateChess
             }
             else
             {
-                grid = new PieceClass[NUM_CELLS,NUM_CELLS];
+                grid = new PieceClass[NUM_CELLS, NUM_CELLS];
             }
 
             grid[0, 0] = new PieceClass { pieceType = Piece.Rook, team = Team.White, position = new Coordinate { row = 0, col = 0 } };
@@ -321,7 +549,7 @@ namespace UltimateChess
                 }
             }
 
-            for(int i = 0; i < 8; i++)
+            for (int i = 0; i < 8; i++)
             {
                 whiteActive.Add(grid[0, i]);
                 whiteActive.Add(grid[1, i]);
