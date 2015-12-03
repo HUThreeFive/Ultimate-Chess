@@ -475,8 +475,13 @@ namespace UltimateChess
             return masterList;
         }
 
-        public bool isCheckMate(Team player)
+        public bool IsCheckMate(Team player)
         {
+            if (!(isWhiteInCheck || isBlackInCheck))
+            {
+                return false;
+            }
+
             List<Coordinate> moves = new List<Coordinate>();
 
             //Search the active list for pieces that have possible moves that will remove the "In Check" condition
@@ -489,7 +494,7 @@ namespace UltimateChess
             }
             else
             {
-                foreach (PieceClass piece in whiteActive)
+                foreach (PieceClass piece in blackActive)
                 {
                     moves.AddRange(PossibleMoves(piece.position, player));
                 }
@@ -503,6 +508,34 @@ namespace UltimateChess
             else
             {
                 return true;
+            }
+        }
+
+        //If isCheckMate returns false, then check for a stalemate condition (neither side can make a legal move)
+        public bool IsStalemate(Team player)
+        {
+            List<Coordinate> whiteMoves = new List<Coordinate>();
+            List<Coordinate> blackMoves = new List<Coordinate>();
+
+            //Search the active lists for pieces that have possible moves that will remove the "In Check" condition
+            foreach (PieceClass piece in whiteActive)
+            {
+                whiteMoves.AddRange(PossibleMoves(piece.position, Team.White));
+            }
+
+            foreach (PieceClass piece in blackActive)
+            {
+                blackMoves.AddRange(PossibleMoves(piece.position, Team.Black));
+            }
+
+            //If the next turn is white's or blacks' and there are no moves possible for that player, then stalemate (Draw) occurs
+            if ((player == Team.White && whiteMoves.Count() <= 0) || (player == Team.Black && blackMoves.Count() <= 0))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
