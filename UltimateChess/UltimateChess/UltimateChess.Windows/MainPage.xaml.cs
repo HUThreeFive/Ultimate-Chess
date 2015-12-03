@@ -32,7 +32,7 @@ namespace UltimateChess
         {
             this.InitializeComponent();
             GridModel grid = new GridModel();
-            grid.Start();
+            grid.Start();       
 
             LayoutGridSetUp();
         }
@@ -49,18 +49,18 @@ namespace UltimateChess
 
         private void CanvasSetUp()
         {
-            if(CanvasBoard.ActualWidth < CanvasBoard.ActualHeight)
+            if(canvasBoard.ActualWidth < canvasBoard.ActualHeight)
             {
-                CanvasBoard.Height = CanvasBoard.Width;
+                canvasBoard.Height = canvasBoard.Width;
             }
             else
             {
-                CanvasBoard.Width = CanvasBoard.ActualHeight;
+                canvasBoard.Width = canvasBoard.ActualHeight;
             }
 
-            CanvasBoard.Children.Clear();
+            canvasBoard.Children.Clear();
 
-            int squareSize = (int)CanvasBoard.Width / 8;
+            int squareSize = (int)canvasBoard.Width / 8;
 
             SolidColorBrush gray = new SolidColorBrush(Colors.Gray);
             SolidColorBrush white = new SolidColorBrush(Colors.White);
@@ -92,7 +92,7 @@ namespace UltimateChess
                     Canvas.SetTop(square, y);
                     Canvas.SetLeft(square, x);
 
-                    CanvasBoard.Children.Add(square);
+                    canvasBoard.Children.Add(square);
                 }
                 flipflop = !flipflop;
             }
@@ -103,7 +103,7 @@ namespace UltimateChess
             Canvas.SetTop(blackKing, 0);
             Canvas.SetLeft(blackKing, 3 * squareSize);
             Canvas.SetZIndex(blackKing, 1);
-            CanvasBoard.Children.Add(blackKing);
+            canvasBoard.Children.Add(blackKing);
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
@@ -129,6 +129,7 @@ namespace UltimateChess
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             CanvasSetUp();
+            double x = canvasBoard.ActualHeight;
         }
     }
 }
