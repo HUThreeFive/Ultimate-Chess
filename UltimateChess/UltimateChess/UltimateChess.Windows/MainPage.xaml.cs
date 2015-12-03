@@ -97,7 +97,7 @@ namespace UltimateChess
                 flipflop = !flipflop;
             }
 
-            Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/King_Black.png")), Width = Height = squareSize };
+            Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/King_Black.png")), Width = squareSize, Height = squareSize };
             
 
             Canvas.SetTop(blackKing, 0);
