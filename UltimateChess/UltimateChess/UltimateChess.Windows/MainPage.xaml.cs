@@ -104,6 +104,14 @@ namespace UltimateChess
             Canvas.SetLeft(blackKing, 3 * squareSize);
             Canvas.SetZIndex(blackKing, 1);
             canvasBoard.Children.Add(blackKing);
+
+            Image blackPawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnBlack.png")), Width = squareSize, Height = squareSize };
+
+
+            Canvas.SetTop(blackPawn, 1);
+            Canvas.SetLeft(blackPawn, 5 * squareSize);
+            Canvas.SetZIndex(blackPawn, 5);
+            canvasBoard.Children.Add(blackPawn);
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
