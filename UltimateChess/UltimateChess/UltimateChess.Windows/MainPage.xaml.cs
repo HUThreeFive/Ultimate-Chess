@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -27,6 +28,7 @@ namespace UltimateChess
     {
         public Coordinate firstClick;
         public Coordinate secondClick;
+        private int squareSize;
 
         public MainPage()
         {
@@ -35,6 +37,7 @@ namespace UltimateChess
             grid.Start();       
 
             LayoutGridSetUp();
+            
         }
 
         private void LayoutGridSetUp()
@@ -58,9 +61,9 @@ namespace UltimateChess
                 canvasBoard.Width = canvasBoard.ActualHeight;
             }
 
-            canvasBoard.Children.Clear();
+            squareSize = (int)canvasBoard.Width / 8;
 
-            int squareSize = (int)canvasBoard.Width / 8;
+            canvasBoard.Children.Clear();
 
             SolidColorBrush gray = new SolidColorBrush(Colors.Gray);
             SolidColorBrush white = new SolidColorBrush(Colors.White);
@@ -97,21 +100,22 @@ namespace UltimateChess
                 flipflop = !flipflop;
             }
 
-            Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/King_Black.png")), Width = squareSize, Height = squareSize };
-            
+            //Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/King_Black.png")), Width = squareSize, Height = squareSize };
+            //Canvas.SetTop(blackKing, 0);
+            //Canvas.SetLeft(blackKing, 3 * squareSize);
+            //Canvas.SetZIndex(blackKing, 1);
+            //canvasBoard.Children.Add(blackKing);
 
-            Canvas.SetTop(blackKing, 0);
-            Canvas.SetLeft(blackKing, 3 * squareSize);
-            Canvas.SetZIndex(blackKing, 1);
-            canvasBoard.Children.Add(blackKing);
+            //Image blackPawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnBlack.png")), Width = squareSize, Height = squareSize };
+            //Canvas.SetTop(blackPawn, 1);
+            //Canvas.SetLeft(blackPawn, 5 * squareSize);
+            //Canvas.SetZIndex(blackPawn, 5);
+            //canvasBoard.Children.Add(blackPawn);
+        }
 
-            Image blackPawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnBlack.png")), Width = squareSize, Height = squareSize };
+        private void StoryBoardSetup()
+        {
 
-
-            Canvas.SetTop(blackPawn, 1);
-            Canvas.SetLeft(blackPawn, 5 * squareSize);
-            Canvas.SetZIndex(blackPawn, 5);
-            canvasBoard.Children.Add(blackPawn);
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
@@ -137,7 +141,88 @@ namespace UltimateChess
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             CanvasSetUp();
-            double x = canvasBoard.ActualHeight;
+            LoadPieceImages();
+        }
+
+        private void canvasBoard_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            Image clickedImage = new Image();
+
+            if (clickedImage.GetType() == e.OriginalSource.GetType())
+            {
+                clickedImage = e.OriginalSource as Image;
+                
+            }
+        }
+
+        private void LoadPieceImages()
+        {
+            PieceClass imagePiece = new PieceClass();
+            imagePiece.pieceType = Piece.Pawn;
+
+            //Adding Pawns
+            for (int i = 0; i < 8; i++)
+            {
+                //Add White pawn to canvas
+                Image pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnBlack.png")), Width = squareSize, Height = squareSize };
+                imagePiece.team = Team.Black;
+                imagePiece.position = new Coordinate() { row = 1, col = i };
+                pawn.Tag = imagePiece;
+                Canvas.SetTop(pawn, squareSize);
+                Canvas.SetLeft(pawn, i * squareSize);
+                Canvas.SetZIndex(pawn, 1);
+                canvasBoard.Children.Add(pawn);
+
+                //Add Black pawn to canvas
+                pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnWhite.png")), Width = squareSize, Height = squareSize };
+                imagePiece.team = Team.White;
+                imagePiece.position = new Coordinate() { row = 6, col = i };
+                pawn.Tag = imagePiece;
+                Canvas.SetTop(pawn, 6 * squareSize);
+                Canvas.SetLeft(pawn, i * squareSize);
+                Canvas.SetZIndex(pawn, 1);
+                canvasBoard.Children.Add(pawn);
+            }
+
+            AddRooksToCanvas();
+            
+        }
+
+        private void AddRooksToCanvas()
+        {
+            PieceClass imagePiece = new PieceClass();
+            imagePiece.pieceType = Piece.Rook;
+
+            for (int i = 0; i < 2; i++)
+            {
+                if (i == 1)
+                {
+                    i = 7;      //Set i to 7 for the rooks on the right of the screen (at column 7)
+                }
+
+                for (int j = 0; j < 2; j++)
+                {
+                    //Add Black Rook
+                    Image blackRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookBlack.png")), Width = squareSize, Height = squareSize };
+                    imagePiece.team = Team.Black;
+                    imagePiece.position = new Coordinate() { row = 0, col = i };
+                    blackRook.Tag = imagePiece;
+                    Canvas.SetTop(blackRook, 0);
+                    Canvas.SetLeft(blackRook, i * squareSize);
+                    Canvas.SetZIndex(blackRook, 1);
+                    canvasBoard.Children.Add(blackRook);
+
+                    //Add White Rook
+                    Image whiteRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookWhite.png")), Width = squareSize, Height = squareSize };
+                    imagePiece.team = Team.White;
+                    imagePiece.position = new Coordinate() { row = 7, col = i };
+                    whiteRook.Tag = imagePiece;
+                    Canvas.SetTop(whiteRook, 7 * squareSize);
+                    Canvas.SetLeft(whiteRook, i * squareSize);
+                    Canvas.SetZIndex(whiteRook, 1);
+                    canvasBoard.Children.Add(whiteRook);
+                }
+            }
         }
     }
 }

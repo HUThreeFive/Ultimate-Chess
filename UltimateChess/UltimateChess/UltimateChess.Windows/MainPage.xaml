@@ -21,8 +21,12 @@
         
         <StackPanel Grid.Column="0" Grid.Row="1" Background="#FFC52727" Width="260" Height="728"/>
         <StackPanel Grid.Column="2" Grid.Row="1" Background="#FFC52727" Width="260" Height="728"/>
-        <Canvas x:Name="canvasBoard" Grid.Column="1" Grid.Row="1" Background="#FF340D0D" Canvas.ZIndex="0">
-  
+        <Canvas x:Name="canvasBoard" Grid.Column="1" Grid.Row="1" Background="#FF340D0D" Canvas.ZIndex="0" PointerPressed="canvasBoard_PointerPressed" >
+            <Canvas.Resources>
+                <Storyboard x:Name="storyBoard">
+                    <DoubleAnimation x:Name="myDoubleAnimation" Duration="0:0:2" />
+                </Storyboard>
+            </Canvas.Resources>
         </Canvas>
     </Grid>
 
