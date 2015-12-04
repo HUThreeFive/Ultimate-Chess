@@ -143,7 +143,7 @@
     <Content Include="Images\kingWhite.png" />
     <Content Include="Images\kingYellow.png" />
     <Content Include="Images\King_Black.png" />
-    <Content Include="Images\knightBlack-01.png" />
+    <Content Include="Images\knightBlack.png" />
     <Content Include="Images\knightBlue.png" />
     <Content Include="Images\knightGreen.png" />
     <Content Include="Images\knightOrange.png" />
