@@ -72,7 +72,7 @@ namespace UltimateChess
         private List<Coordinate> GetKingMoves(Coordinate baseCoord)
         {
             List<Coordinate> possibleMoves = new List<Coordinate>();
-
+            //TODO: add bounds checking and team getting
             possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col });       //Down Vertically
             possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col });       //Up Vertically
             possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col - 1 });       //Left Horizontally
@@ -86,64 +86,64 @@ namespace UltimateChess
 
             return possibleMoves;
         }
-
+        
         private List<Coordinate> GetQueenMoves(Coordinate baseCoord)
         {
             List<Coordinate> possibleMoves = new List<Coordinate>();
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row + i < 8 && grid[baseCoord.row + i, baseCoord.col].team == baseCoord.team)
+                if (baseCoord.row + i > 7 || grid[baseCoord.row + i, baseCoord.col].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col });       //Down Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col, team = grid[baseCoord.row + i, baseCoord.col].team });       //Down Vertically
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row - i > 0 && grid[baseCoord.row - i, baseCoord.col].team == baseCoord.team)
+                if (baseCoord.row - i < 0 || grid[baseCoord.row - i, baseCoord.col].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col });       //Up Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col, team = grid[baseCoord.row - i, baseCoord.col].team });       //Up Vertically
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.col - i > 0 && grid[baseCoord.row, baseCoord.col - i].team == baseCoord.team)
+                if (baseCoord.col - i < 0 || grid[baseCoord.row, baseCoord.col - i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col - i });       //Left Horizontally
+                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col - i, team = grid[baseCoord.row, baseCoord.col - i].team });       //Left Horizontally
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.col + i < 8 && grid[baseCoord.row, baseCoord.col + 1].team == baseCoord.team)
+                if (baseCoord.col + i > 7 || grid[baseCoord.row, baseCoord.col + 1].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col + i });       //Right Horizontally
+                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col + i, team = grid[baseCoord.row, baseCoord.col + 1].team });       //Right Horizontally
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row - i > 0 && baseCoord.col - i > 0 && grid[baseCoord.row - i, baseCoord.col - i].team == baseCoord.team)
+                if (baseCoord.row - i < 0 || baseCoord.col - i < 0 || grid[baseCoord.row - i, baseCoord.col - i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col - i });   //Diagonal Up-Left
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col - i, team = grid[baseCoord.row - i, baseCoord.col - i].team });   //Diagonal Up-Left
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row - i > 0 && baseCoord.col + i < 8 && grid[baseCoord.row - i, baseCoord.col + i].team == baseCoord.team)
+                if (baseCoord.row - i < 0 || baseCoord.col + i > 7 || grid[baseCoord.row - i, baseCoord.col + i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col + i });   //Diagonal Up-Right
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col + i, team = grid[baseCoord.row - i, baseCoord.col + i].team });   //Diagonal Up-Right
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row + i < 8 && baseCoord.col + i < 8 && grid[baseCoord.row + i, baseCoord.col + 1].team == baseCoord.team)
+                if (baseCoord.row + i > 7 || baseCoord.col + i > 7 || grid[baseCoord.row + i, baseCoord.col + i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col + i });   //Diagonal Down-Right
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col + i, team = grid[baseCoord.row + i, baseCoord.col + i].team });   //Diagonal Down-Right
             }
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row + i < 8 && baseCoord.col - i > 0 && grid[baseCoord.row + i, baseCoord.col - i].team == baseCoord.team)
+                if (baseCoord.row + i > 7 || baseCoord.col - i < 0 || grid[baseCoord.row + i, baseCoord.col - i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col - i });   //Diagonal Down-Left
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col - i, team = grid[baseCoord.row + i, baseCoord.col - i].team });   //Diagonal Down-Left
             }
 
             return possibleMoves;
@@ -156,29 +156,29 @@ namespace UltimateChess
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row - i > 0 && baseCoord.col - i > 0 && grid[baseCoord.row - i, baseCoord.col - i].team == baseCoord.team)
+                if (baseCoord.row - i < 0 || baseCoord.col - i < 0 || grid[baseCoord.row - i, baseCoord.col - i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col - i });   //Diagonal Up-Left
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col - i, team = grid[baseCoord.row - i, baseCoord.col - i].team });   //Diagonal Up-Left
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row - i > 0 && baseCoord.col + i < 8 && grid[baseCoord.row - i, baseCoord.col + i].team == baseCoord.team)
+                if (baseCoord.row - i < 0 || baseCoord.col + i > 7 || grid[baseCoord.row - i, baseCoord.col + i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col + i });   //Diagonal Up-Right
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col + i, team = grid[baseCoord.row - i, baseCoord.col + i].team });   //Diagonal Up-Right
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row + i < 8 && baseCoord.col + i < 8 && grid[baseCoord.row + i, baseCoord.col + 1].team == baseCoord.team)
+                if (baseCoord.row + i > 7 || baseCoord.col + i > 7 || grid[baseCoord.row + i, baseCoord.col + i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col + i });   //Diagonal Down-Right
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col + i, team = grid[baseCoord.row + i, baseCoord.col + i].team });   //Diagonal Down-Right
             }
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row + i < 8 && baseCoord.col - i > 0 && grid[baseCoord.row + i, baseCoord.col - i].team == baseCoord.team)
+                if (baseCoord.row + i > 7 || baseCoord.col - i < 0 || grid[baseCoord.row + i, baseCoord.col - i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col - i });   //Diagonal Down-Left
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col - i, team = grid[baseCoord.row + i, baseCoord.col - i].team });   //Diagonal Down-Left
             }
 
 
@@ -195,22 +195,23 @@ namespace UltimateChess
             List<Coordinate> possibleMoves = new List<Coordinate>();
             Coordinate newCoordinate;
 
+            //TODO: add bounds checking
             //Think clockwise rotation
-            newCoordinate = new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 2 };     //Left-Bottom
+            newCoordinate = new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 2, team = grid[baseCoord.row + 1, baseCoord.col - 2].team };     //Left-Bottom
             possibleMoves.Add(newCoordinate);
-            newCoordinate = new Coordinate { row = baseCoord.row - 1, col = baseCoord.col - 2 };     //Left-Top
+            newCoordinate = new Coordinate { row = baseCoord.row - 1, col = baseCoord.col - 2, team = grid[baseCoord.row - 1, baseCoord.col - 2].team };     //Left-Top
             possibleMoves.Add(newCoordinate);
-            newCoordinate = new Coordinate { row = baseCoord.row - 2, col = baseCoord.col - 1 };     //Top-Left
+            newCoordinate = new Coordinate { row = baseCoord.row - 2, col = baseCoord.col - 1, team = grid[baseCoord.row - 2, baseCoord.col - 1].team };     //Top-Left
             possibleMoves.Add(newCoordinate);
-            newCoordinate = new Coordinate { row = baseCoord.row - 2, col = baseCoord.col + 1 };     //Top-Right
+            newCoordinate = new Coordinate { row = baseCoord.row - 2, col = baseCoord.col + 1, team = grid[baseCoord.row - 2, baseCoord.col + 1].team };     //Top-Right
             possibleMoves.Add(newCoordinate);
-            newCoordinate = new Coordinate { row = baseCoord.row - 1, col = baseCoord.col + 2 };     //Right-Top
+            newCoordinate = new Coordinate { row = baseCoord.row - 1, col = baseCoord.col + 2, team = grid[baseCoord.row - 1, baseCoord.col + 2].team };     //Right-Top
             possibleMoves.Add(newCoordinate);
-            newCoordinate = new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 2 };     //Right-Bottom
+            newCoordinate = new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 2, team = grid[baseCoord.row + 1, baseCoord.col + 2].team };     //Right-Bottom
             possibleMoves.Add(newCoordinate);
-            newCoordinate = new Coordinate { row = baseCoord.row + 2, col = baseCoord.col + 1 };     //Bottom-Right
+            newCoordinate = new Coordinate { row = baseCoord.row + 2, col = baseCoord.col + 1, team = grid[baseCoord.row + 2, baseCoord.col + 1].team };     //Bottom-Right
             possibleMoves.Add(newCoordinate);
-            newCoordinate = new Coordinate { row = baseCoord.row + 2, col = baseCoord.col - 1 };     //Bottom-Left
+            newCoordinate = new Coordinate { row = baseCoord.row + 2, col = baseCoord.col - 1, team = grid[baseCoord.row + 2, baseCoord.col - 1].team };     //Bottom-Left
             possibleMoves.Add(newCoordinate);
 
             return possibleMoves;
@@ -222,30 +223,30 @@ namespace UltimateChess
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row + i < 8 && grid[baseCoord.row + i, baseCoord.col].team == baseCoord.team)
+                if (baseCoord.row + i > 7 || grid[baseCoord.row + i, baseCoord.col].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col });       //Down Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + i, col = baseCoord.col, team = grid[baseCoord.row + i, baseCoord.col].team });       //Down Vertically
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.row - i > 0 && grid[baseCoord.row - i, baseCoord.col].team == baseCoord.team)
+                if (baseCoord.row - i < 0 || grid[baseCoord.row - i, baseCoord.col].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col });       //Up Vertically
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col, team = grid[baseCoord.row - i, baseCoord.col].team });       //Up Vertically
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.col - i > 0 && grid[baseCoord.row, baseCoord.col - i].team == baseCoord.team)
+                if (baseCoord.col - i < 0 || grid[baseCoord.row, baseCoord.col - i].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col - i });       //Left Horizontally
+                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col - i, team = grid[baseCoord.row, baseCoord.col - i].team });       //Left Horizontally
             }
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.col + i < 8 && grid[baseCoord.row, baseCoord.col + 1].team == baseCoord.team)
+                if (baseCoord.col + i > 7 || grid[baseCoord.row, baseCoord.col + 1].team == baseCoord.team)
                     break;
-                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col + i });       //Right Horizontally
+                possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col + i, team = grid[baseCoord.row, baseCoord.col + 1].team });       //Right Horizontally
             }
 
 
@@ -259,51 +260,75 @@ namespace UltimateChess
             if (baseCoord.team == Team.Black)
             {
                 //Forwards
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col });
-
-                if (!grid[baseCoord.row, baseCoord.col].hasMoved)
+                if (baseCoord.row + 1 > 7 || grid[baseCoord.row + 1, baseCoord.col].team == baseCoord.team)
                 {
-                    //Forwards x2
-                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 2, col = baseCoord.col });
+                    //do nothing
+                }
+                else
+                {
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col, team = grid[baseCoord.row + 1, baseCoord.col].team });
+
+                    if (!grid[baseCoord.row, baseCoord.col].hasMoved)
+                    {
+                        //Forwards x2
+                        if (baseCoord.row + 2 > 7 || grid[baseCoord.row + 2, baseCoord.col].team == baseCoord.team)
+                        {
+                            //do nothing
+                        }
+                        else
+                            possibleMoves.Add(new Coordinate { row = baseCoord.row + 2, col = baseCoord.col, team = grid[baseCoord.row + 2, baseCoord.col].team });
+                    }
                 }
 
                 //Diagonally Down Left
                 if ((baseCoord.col != 0 && baseCoord.row != 7) && grid[baseCoord.row + 1, baseCoord.col - 1].team != grid[baseCoord.row, baseCoord.col].team &&
                     grid[baseCoord.row + 1, baseCoord.col - 1].team != Team.Blank)
                 {
-                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 1 });
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 1, team = grid[baseCoord.row + 1, baseCoord.col - 1].team });
                 }
 
                 //Diagonally Down Right
                 if ((baseCoord.col != 7 && baseCoord.row != 7) && grid[baseCoord.row + 1, baseCoord.col + 1].team != grid[baseCoord.row, baseCoord.col].team &&
                     grid[baseCoord.row + 1, baseCoord.col + 1].team != Team.Blank)
                 {
-                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 1 });
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 1, team = grid[baseCoord.row + 1, baseCoord.col + 1].team });
                 }
             }
             else
             {
                 //Forwards
-                possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col });
-
-                if (!grid[baseCoord.row, baseCoord.col].hasMoved)
+                if (baseCoord.row - 1 < 0 || grid[baseCoord.row - 1, baseCoord.col].team == baseCoord.team)
                 {
-                    //Forwards x2
-                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 2, col = baseCoord.col });
+                    //do nothing
+                }
+                else
+                {
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col, team = grid[baseCoord.row - 1, baseCoord.col].team });
+
+                    if (!grid[baseCoord.row, baseCoord.col].hasMoved)
+                    {
+                        //Forwards x2
+                        if (baseCoord.row - 2 < 0 || grid[baseCoord.row - 2, baseCoord.col].team == baseCoord.team)
+                        {
+                            //do nothing
+                        }
+                        else
+                            possibleMoves.Add(new Coordinate { row = baseCoord.row - 2, col = baseCoord.col, team = grid[baseCoord.row - 2, baseCoord.col].team });
+                    }
                 }
 
                 //Diagonally Left
                 if ((baseCoord.col != 0 && baseCoord.row != 0) && grid[baseCoord.row - 1, baseCoord.col - 1].team != grid[baseCoord.row, baseCoord.col].team &&
                     grid[baseCoord.row - 1, baseCoord.col - 1].team != Team.Blank)
                 {
-                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col - 1 });
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col - 1, team = grid[baseCoord.row - 1, baseCoord.col - 1].team });
                 }
 
                 //Diagonally Right
                 if ((baseCoord.col != 7 && baseCoord.row != 0) && grid[baseCoord.row - 1, baseCoord.col + 1].team != grid[baseCoord.row, baseCoord.col].team &&
                     grid[baseCoord.row - 1, baseCoord.col + 1].team != Team.Blank)
                 {
-                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col + 1 });
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col + 1, team = grid[baseCoord.row - 1, baseCoord.col + 1].team });
                 }
             }
 
@@ -687,10 +712,10 @@ namespace UltimateChess
             for (int i = 0; i < 8; i++)
             {
                 grid[1, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.Black, position = new Coordinate { row = 1, col = i, team = Team.Black }, hasMoved = false };
-                grid[6, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.White, position = new Coordinate { row = 6, col = i, team = Team.White }, hasMoved = false };
+                //grid[6, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.White, position = new Coordinate { row = 6, col = i, team = Team.White }, hasMoved = false };
             }
 
-            for (int R = 2; R < 6; R++)
+            for (int R = 2; R < 7; R++)
             {
                 for (int C = 0; C < 8; C++)
                 {
