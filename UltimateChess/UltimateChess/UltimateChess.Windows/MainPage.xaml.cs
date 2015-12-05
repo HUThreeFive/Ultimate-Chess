@@ -26,8 +26,7 @@ namespace UltimateChess
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        public Coordinate firstClick;
-        public Coordinate secondClick;
+        public bool firstClick = true;
         private int squareSize;
         public GridModel grid;
 
@@ -146,11 +145,22 @@ namespace UltimateChess
             Rectangle rect = new Rectangle();
             SolidColorBrush gray = new SolidColorBrush(Colors.Gray);
             SolidColorBrush white = new SolidColorBrush(Colors.White);
+            List<Coordinate> moves = new List<Coordinate>();
+
             if (clickedImage.GetType() == e.OriginalSource.GetType())
             {
                 clickedImage = e.OriginalSource as Image;
                 PieceClass p = clickedImage.Tag as PieceClass;
-                List<Coordinate> moves = grid.PossibleMoves(p.position, p.position.team);
+
+                if (firstClick)
+                {
+                    moves = new List<Coordinate>(grid.PossibleMoves(p.position, p.position.team));
+                    firstClick = false;
+                }
+                else
+                {
+                    firstClick = true;
+                }
 
                 foreach (UIElement children in canvasBoard.Children.ToList())
                 {
@@ -202,8 +212,6 @@ namespace UltimateChess
                         {
                             if (move.col == coord.col && move.row == coord.row)
                             {
-
-
                                 if (brushOld.Color.R == 255)
                                 {
                                     SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 128, 225, 128));
@@ -221,7 +229,6 @@ namespace UltimateChess
                                 Canvas.SetZIndex(rect, 0);
                                 rect.Height = rect.Width = squareSize;
                                 canvasBoard.Children.Add(rect);
-                                //            break;
                             }
                         }
                     }

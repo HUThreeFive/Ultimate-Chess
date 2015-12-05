@@ -482,7 +482,7 @@ namespace UltimateChess
 
         private List<Coordinate> WillKingBeInCheck(List<Coordinate> masterList, Coordinate source, Team player)
         {
-            PieceClass[,] copyOfGrid = grid;
+            PieceClass[,] copyOfGrid = grid.Clone() as PieceClass[,];
             List<PieceClass> whiteActiveCopy = whiteActive;
             List<PieceClass> blackActiveCopy = blackActive;
             bool isBlackInCheckCopy = isBlackInCheck;
