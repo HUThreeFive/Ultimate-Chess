@@ -16,7 +16,7 @@
     <SynthesizeLinkMetadata>true</SynthesizeLinkMetadata>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>UltimateChess.Windows_TemporaryKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>6BB4C8F9013E6AD71B506E95CA290BBA61A34D04</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>755B81866C4EA1321CC17ED75863F6D459F03899</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>

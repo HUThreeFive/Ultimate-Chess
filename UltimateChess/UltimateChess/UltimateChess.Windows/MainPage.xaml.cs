@@ -29,11 +29,12 @@ namespace UltimateChess
         public Coordinate firstClick;
         public Coordinate secondClick;
         private int squareSize;
+        public GridModel grid;
 
         public MainPage()
         {
             this.InitializeComponent();
-            GridModel grid = new GridModel();
+            grid = new GridModel();
             grid.Start();       
             LayoutGridSetUp();
         }
@@ -61,8 +62,6 @@ namespace UltimateChess
 
             squareSize = (int)canvasBoard.Width / 8;
 
-            canvasBoard.Children.Clear();
-
             SolidColorBrush gray = new SolidColorBrush(Colors.Gray);
             SolidColorBrush white = new SolidColorBrush(Colors.White);
 
@@ -86,6 +85,8 @@ namespace UltimateChess
                     flipflop = !flipflop;
 
                     square.Width = square.Height = squareSize;
+
+                    square.Tag = new Coordinate { row = r, col = c };
 
                     int x = c * squareSize;
                     int y = r * squareSize;
@@ -118,7 +119,9 @@ namespace UltimateChess
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
-
+            canvasBoard.Children.Clear();
+            CanvasSetUp();
+            LoadPieceImages();
         }
 
         private void btnColor_Click(object sender, RoutedEventArgs e)
@@ -145,36 +148,84 @@ namespace UltimateChess
         private void canvasBoard_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             Image clickedImage = new Image();
-
+            Rectangle rect = new Rectangle();
+            SolidColorBrush gray = new SolidColorBrush(Colors.Gray);
+            SolidColorBrush white = new SolidColorBrush(Colors.White);
             if (clickedImage.GetType() == e.OriginalSource.GetType())
             {
                 clickedImage = e.OriginalSource as Image;
+                PieceClass p = clickedImage.Tag as PieceClass;
+                List<Coordinate> moves = grid.PossibleMoves(p.position, p.position.team);
+
+                foreach (UIElement child in canvasBoard.Children.ToList())
+                {
+                    if (child.GetType() == rect.GetType())
+                    {
+                        rect = child as Rectangle;
+                        
+
+                        foreach (Coordinate move in moves)
+                        {
+                            Coordinate coord = new Coordinate();
+                            coord = rect.Tag as Coordinate;
+                            if (move.col == coord.col && move.row == coord.row)
+                            {
+                                SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
+
+                                if (brushOld.Color.R == 255)
+                                {
+                                    SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 128, 225, 128));
+                                    rect.Fill = brushWhite; 
+                                }
+                                else
+                                {
+                                    SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 0, 225, 0));
+                                    rect.Fill = brushGrey; 
+                                }
+
+                                canvasBoard.Children.Remove(child);
+                                Canvas.SetLeft(rect, coord.col * squareSize);
+                                Canvas.SetTop(rect, coord.row * squareSize);
+                                Canvas.SetZIndex(rect, 0);
+                                rect.Height = rect.Width = squareSize;
+                                canvasBoard.Children.Add(rect);
+                    //            break;
+                            }
+                        }
+                    }
+                }
                 
             }
         }
 
         private void LoadPieceImages()
         {
-            PieceClass imagePiece = new PieceClass();
-            imagePiece.pieceType = Piece.Pawn;
+            PieceClass imagePiece;
+            Image pawn;
 
             //Adding Pawns
             for (int i = 0; i < 8; i++)
             {
-                //Add White pawn to canvas
-                Image pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnBlack.png")), Width = squareSize, Height = squareSize };
+                imagePiece = new PieceClass();
+                imagePiece.pieceType = Piece.Pawn;
                 imagePiece.team = Team.Black;
-                imagePiece.position = new Coordinate() { row = 1, col = i };
+
+                //Add Black pawn to canvas
+                pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnBlack.png")), Width = squareSize, Height = squareSize };
+                imagePiece.position = new Coordinate() { row = 1, col = i, team = Team.Black };
                 pawn.Tag = imagePiece;
                 Canvas.SetTop(pawn, squareSize);
                 Canvas.SetLeft(pawn, i * squareSize);
                 Canvas.SetZIndex(pawn, 1);
                 canvasBoard.Children.Add(pawn);
 
-                //Add Black pawn to canvas
-                pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnWhite.png")), Width = squareSize, Height = squareSize };
+                imagePiece = new PieceClass();
+                imagePiece.pieceType = Piece.Pawn;
                 imagePiece.team = Team.White;
-                imagePiece.position = new Coordinate() { row = 6, col = i };
+
+                //Add White pawn to canvas
+                pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnWhite.png")), Width = squareSize, Height = squareSize };
+                imagePiece.position = new Coordinate() { row = 6, col = i, team = Team.White };
                 pawn.Tag = imagePiece;
                 Canvas.SetTop(pawn, 6 * squareSize);
                 Canvas.SetLeft(pawn, i * squareSize);
@@ -204,8 +255,7 @@ namespace UltimateChess
                 {
                     //Add Black Rook
                     Image blackRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookBlack.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.team = Team.Black;
-                    imagePiece.position = new Coordinate() { row = 0, col = i };
+                    imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
                     blackRook.Tag = imagePiece;
                     Canvas.SetTop(blackRook, 0);
                     Canvas.SetLeft(blackRook, i * squareSize);
@@ -214,8 +264,7 @@ namespace UltimateChess
 
                     //Add White Rook
                     Image whiteRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookWhite.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.team = Team.White;
-                    imagePiece.position = new Coordinate() { row = 7, col = i };
+                    imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
                     whiteRook.Tag = imagePiece;
                     Canvas.SetTop(whiteRook, 7 * squareSize);
                     Canvas.SetLeft(whiteRook, i * squareSize);
@@ -241,8 +290,7 @@ namespace UltimateChess
                 {
                     //Add Black Knight
                     Image blackKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knightBlack.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.team = Team.Black;
-                    imagePiece.position = new Coordinate() { row = 0, col = i };
+                    imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
                     blackKnight.Tag = imagePiece;
                     Canvas.SetTop(blackKnight, 0);
                     Canvas.SetLeft(blackKnight, i * squareSize);
@@ -251,8 +299,7 @@ namespace UltimateChess
 
                     //Add White Knight
                     Image whiteKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knightWhite.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.team = Team.White;
-                    imagePiece.position = new Coordinate() { row = 7, col = i };
+                    imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
                     whiteKnight.Tag = imagePiece;
                     Canvas.SetTop(whiteKnight, 7 * squareSize);
                     Canvas.SetLeft(whiteKnight, i * squareSize);
@@ -278,8 +325,7 @@ namespace UltimateChess
                 {
                     //Add Black Bishop
                     Image blackBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishopBlack.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.team = Team.Black;
-                    imagePiece.position = new Coordinate() { row = 0, col = i };
+                    imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
                     blackBishop.Tag = imagePiece;
                     Canvas.SetTop(blackBishop, 0);
                     Canvas.SetLeft(blackBishop, i * squareSize);
@@ -288,8 +334,7 @@ namespace UltimateChess
 
                     //Add White Bishop
                     Image whiteBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishopWhite.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.team = Team.White;
-                    imagePiece.position = new Coordinate() { row = 7, col = i };
+                    imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
                     whiteBishop.Tag = imagePiece;
                     Canvas.SetTop(whiteBishop, 7 * squareSize);
                     Canvas.SetLeft(whiteBishop, i * squareSize);
@@ -306,8 +351,7 @@ namespace UltimateChess
 
             //Add Black Queen
             Image blackQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queenBlack.png")), Width = squareSize, Height = squareSize };
-            imagePiece.team = Team.Black;
-            imagePiece.position = new Coordinate() { row = 0, col = 4 };
+            imagePiece.position = new Coordinate() { row = 0, col = 4, team = Team.Black };
             blackQueen.Tag = imagePiece;
             Canvas.SetTop(blackQueen, 0);
             Canvas.SetLeft(blackQueen, 3 * squareSize);
@@ -316,8 +360,7 @@ namespace UltimateChess
 
             //Add White Queen
             Image whiteQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queenWhite.png")), Width = squareSize, Height = squareSize };
-            imagePiece.team = Team.White;
-            imagePiece.position = new Coordinate() { row = 7, col = 4 };
+            imagePiece.position = new Coordinate() { row = 7, col = 4, team = Team.White };
             whiteQueen.Tag = imagePiece;
             Canvas.SetTop(whiteQueen, 7 * squareSize);
             Canvas.SetLeft(whiteQueen, 3 * squareSize);
@@ -328,8 +371,7 @@ namespace UltimateChess
 
             //Add Black King
             Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/kingBlack.png")), Width = squareSize, Height = squareSize };
-            imagePiece.team = Team.Black;
-            imagePiece.position = new Coordinate() { row = 0, col = 5 };
+            imagePiece.position = new Coordinate() { row = 0, col = 5, team = Team.Black };
             blackKing.Tag = imagePiece;
             Canvas.SetTop(blackKing, 0);
             Canvas.SetLeft(blackKing, 4 * squareSize);
@@ -338,8 +380,7 @@ namespace UltimateChess
 
             //Add White King
             Image whiteKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/kingWhite.png")), Width = squareSize, Height = squareSize };
-            imagePiece.team = Team.White;
-            imagePiece.position = new Coordinate() { row = 7, col = 5 };
+            imagePiece.position = new Coordinate() { row = 7, col = 5, team = Team.White };
             whiteKing.Tag = imagePiece;
             Canvas.SetTop(whiteKing, 7 * squareSize);
             Canvas.SetLeft(whiteKing, 4 * squareSize);

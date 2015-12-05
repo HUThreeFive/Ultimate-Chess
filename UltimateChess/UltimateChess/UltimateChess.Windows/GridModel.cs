@@ -51,7 +51,7 @@ namespace UltimateChess
                     break;
             }
 
-            foreach (Coordinate c in possibleMoves)
+            foreach (Coordinate c in possibleMoves.ToList())
             {
                 if (c.row < 0 || c.row > 7 || c.col < 0 || c.col > 7)
                 {
@@ -64,7 +64,7 @@ namespace UltimateChess
             }
 
             //function to check moves against putting own king in check
-            possibleMoves = WillKingBeInCheck(possibleMoves, coord, player);
+            //possibleMoves = WillKingBeInCheck(possibleMoves, coord, player);
 
             return possibleMoves;
         }
@@ -82,7 +82,7 @@ namespace UltimateChess
             possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 1 });   //Diagonal Down-Right
             possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 1 });   //Diagonal Down-Left
 
-            possibleMoves = ValidateKingMoves(possibleMoves, grid[baseCoord.row, baseCoord.col].team);
+            //possibleMoves = ValidateKingMoves(possibleMoves, grid[baseCoord.row, baseCoord.col].team);
 
             return possibleMoves;
         }
@@ -171,23 +171,55 @@ namespace UltimateChess
         {
             List<Coordinate> possibleMoves = new List<Coordinate>();
 
-            possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col });
-
-            if (!grid[baseCoord.row, baseCoord.col].hasMoved)
+            if (baseCoord.team == Team.Black)
             {
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + 2, col = baseCoord.col });
+                //Forwards
+                possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col });
+
+                if (!grid[baseCoord.row, baseCoord.col].hasMoved)
+                {
+                    //Forwards x2
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 2, col = baseCoord.col });
+                }
+
+                //Diagonally Down Left
+                if ((baseCoord.col != 0 && baseCoord.row != 7)  && grid[baseCoord.row + 1, baseCoord.col - 1].team != grid[baseCoord.row, baseCoord.col].team &&
+                    grid[baseCoord.row + 1, baseCoord.col - 1].team != Team.Blank)
+                {
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 1 });
+                }
+
+                //Diagonally Down Right
+                if ((baseCoord.col != 7 && baseCoord.row != 7) && grid[baseCoord.row + 1, baseCoord.col + 1].team != grid[baseCoord.row, baseCoord.col].team &&
+                    grid[baseCoord.row + 1, baseCoord.col + 1].team != Team.Blank)
+                {
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 1 });
+                }
             }
-
-            if (grid[baseCoord.row + 1, baseCoord.col - 1].team != grid[baseCoord.row, baseCoord.col].team &&
-                grid[baseCoord.row + 1, baseCoord.col - 1].team != Team.Blank)
+            else
             {
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col - 1 });
-            }
+                //Forwards
+                possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col });
 
-            if (grid[baseCoord.row + 1, baseCoord.col + 1].team != grid[baseCoord.row, baseCoord.col].team &&
-                grid[baseCoord.row + 1, baseCoord.col + 1].team != Team.Blank)
-            {
-                possibleMoves.Add(new Coordinate { row = baseCoord.row + 1, col = baseCoord.col + 1 });
+                if (!grid[baseCoord.row, baseCoord.col].hasMoved)
+                {
+                    //Forwards x2
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 2, col = baseCoord.col });
+                }
+
+                //Diagonally Left
+                if ((baseCoord.col != 0 && baseCoord.row != 0) && grid[baseCoord.row - 1, baseCoord.col - 1].team != grid[baseCoord.row, baseCoord.col].team &&
+                    grid[baseCoord.row - 1, baseCoord.col - 1].team != Team.Blank)
+                {
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col - 1 });
+                }
+
+                //Diagonally Right
+                if ((baseCoord.col != 7 && baseCoord.row != 0) && grid[baseCoord.row - 1, baseCoord.col + 1].team != grid[baseCoord.row, baseCoord.col].team &&
+                    grid[baseCoord.row - 1, baseCoord.col + 1].team != Team.Blank)
+                {
+                    possibleMoves.Add(new Coordinate { row = baseCoord.row - 1, col = baseCoord.col + 1 });
+                }
             }
 
             return possibleMoves;
@@ -212,12 +244,12 @@ namespace UltimateChess
             if (player == Team.White)
             {
                 whiteCaptured.Add(grid[destination.row, destination.col]);
-                blackActive.Remove(blackActive.Find(x => x.position == destination));
+                blackActive.Remove(blackActive.Find(x => (x.position.col == destination.col && x.position.row == destination.row)));
             }
             else
             {
                 blackCaptured.Add(grid[destination.row, destination.col]);
-                whiteActive.Remove(whiteActive.Find(x => x.position == destination));
+                whiteActive.Remove(whiteActive.Find(x => (x.position.col == destination.col && x.position.row == destination.row)));
             }
 
             Move(source, destination, player);
@@ -228,11 +260,19 @@ namespace UltimateChess
             grid[destination.row, destination.col] = grid[source.row, source.col];
             if (player == Team.White)
             {
-                whiteActive.Find(x => x.position == source).position = destination;
+                PieceClass piece = whiteActive.Find(x => (x.position.col == source.col && x.position.row == source.row));
+                int index = whiteActive.IndexOf(piece);
+                whiteActive.RemoveAt(index);
+                piece.position = destination;
+                whiteActive.Add(piece);
             }
             else
             {
-                blackActive.Find(x => x.position == source).position = destination;
+                PieceClass piece = blackActive.Find(x => (x.position.col == source.col && x.position.row == source.row));
+                int index = blackActive.IndexOf(piece);
+                blackActive.RemoveAt(index);
+                piece.position = destination;
+                blackActive.Add(piece);
             }
 
             grid[destination.row, destination.col].position = destination;
@@ -282,7 +322,7 @@ namespace UltimateChess
         }
 
         //remove the king's moves that would put it in check
-        private List<Coordinate> ValidateKingMoves(List<Coordinate> coordList, Team player)
+        private List<Coordinate> ValidateKingMoves(List<Coordinate> coordList, Team player, ref PieceClass[,] copyOfGrid)
         {
             List<Coordinate> masterList = new List<Coordinate>();
 
@@ -290,14 +330,14 @@ namespace UltimateChess
             {
                 foreach (PieceClass piece in whiteActive)
                 {
-                    masterList.AddRange(PossibleMoves(piece.position, player));
+                    masterList.AddRange(PossibleMoves(piece.position, player, ref copyOfGrid));
                 }
             }
             else
             {
                 foreach (PieceClass piece in blackActive)
                 {
-                    masterList.AddRange(PossibleMoves(piece.position, player));
+                    masterList.AddRange(PossibleMoves(piece.position, player, ref copyOfGrid));
                 }
             }
 
@@ -305,7 +345,7 @@ namespace UltimateChess
             {
                 if (masterList.Exists(x => x == c))
                 {
-                    coordList.Remove(coordList.Find(x => x == c));
+                    coordList.Remove(coordList.Find(x => (x.col == c.col && x.row == c.row)));
                 }
             }
 
@@ -320,11 +360,11 @@ namespace UltimateChess
                 //Remove attacked piece from respective active list
                 if (player == Team.White)
                 {
-                    blackActiveCopy.Remove(blackActiveCopy.Find(x => x.position == destination));
+                    blackActiveCopy.Remove(blackActiveCopy.Find(x => (x.position.col == destination.col && x.position.row == destination.row)));
                 }
                 else
                 {
-                    whiteActiveCopy.Remove(whiteActiveCopy.Find(x => x.position == destination));
+                    whiteActiveCopy.Remove(whiteActiveCopy.Find(x => (x.position.col == destination.col && x.position.row == destination.row)));
                 }
             }
 
@@ -332,11 +372,19 @@ namespace UltimateChess
 
             if (player == Team.White)
             {
-                whiteActiveCopy.Find(x => x.position == source).position = destination;
+                PieceClass piece = whiteActiveCopy.Find(x => (x.position.col == source.col && x.position.row == source.row));
+                int index = whiteActiveCopy.IndexOf(piece);
+                whiteActiveCopy.RemoveAt(index);
+                piece.position = destination;
+                whiteActiveCopy.Add(piece);
             }
             else
             {
-                blackActiveCopy.Find(x => x.position == source).position = destination;
+                PieceClass piece = blackActiveCopy.Find(x => (x.position.col == source.col && x.position.row == source.row));
+                int index = blackActiveCopy.IndexOf(piece);
+                blackActiveCopy.RemoveAt(index);
+                piece.position = destination;
+                blackActiveCopy.Add(piece);
             }
 
             copyOfGrid[destination.row, destination.col].position = destination;
@@ -392,7 +440,7 @@ namespace UltimateChess
                     break;
             }
 
-            foreach (Coordinate c in possibleMoves)
+            foreach (Coordinate c in possibleMoves.ToList())
             {
                 if (c.row < 0 || c.row > 7 || c.col < 0 || c.col > 7)
                 {
@@ -465,7 +513,7 @@ namespace UltimateChess
 
                 if (isBlackInCheck || isWhiteInCheck)
                 {
-                    masterList.Remove(masterList.Find(x => x == move));
+                    masterList.Remove(masterList.Find(x => (x.col == move.col && x.row == move.row)));
                 }
 
                 isBlackInCheck = isBlackInCheckCopy;
@@ -550,44 +598,44 @@ namespace UltimateChess
                 grid = new PieceClass[NUM_CELLS, NUM_CELLS];
             }
 
-            grid[0, 0] = new PieceClass { pieceType = Piece.Rook, team = Team.White, position = new Coordinate { row = 0, col = 0 } };
-            grid[0, 1] = new PieceClass { pieceType = Piece.Knight, team = Team.White, position = new Coordinate { row = 0, col = 1 } };
-            grid[0, 2] = new PieceClass { pieceType = Piece.Bishop, team = Team.White, position = new Coordinate { row = 0, col = 2 } };
-            grid[0, 3] = new PieceClass { pieceType = Piece.Queen, team = Team.White, position = new Coordinate { row = 0, col = 3 } };
-            grid[0, 4] = new PieceClass { pieceType = Piece.King, team = Team.White, position = new Coordinate { row = 0, col = 4 } };
-            grid[0, 5] = new PieceClass { pieceType = Piece.Bishop, team = Team.White, position = new Coordinate { row = 0, col = 5 } };
-            grid[0, 6] = new PieceClass { pieceType = Piece.Knight, team = Team.White, position = new Coordinate { row = 0, col = 6 } };
-            grid[0, 7] = new PieceClass { pieceType = Piece.Rook, team = Team.White, position = new Coordinate { row = 0, col = 7 } };
+            grid[0, 0] = new PieceClass { pieceType = Piece.Rook, team = Team.Black, position = new Coordinate { row = 0, col = 0, team = Team.Black } };
+            grid[0, 1] = new PieceClass { pieceType = Piece.Knight, team = Team.Black, position = new Coordinate { row = 0, col = 1, team = Team.Black } };
+            grid[0, 2] = new PieceClass { pieceType = Piece.Bishop, team = Team.Black, position = new Coordinate { row = 0, col = 2, team = Team.Black } };
+            grid[0, 3] = new PieceClass { pieceType = Piece.Queen, team = Team.Black, position = new Coordinate { row = 0, col = 3, team = Team.Black } };
+            grid[0, 4] = new PieceClass { pieceType = Piece.King, team = Team.Black, position = new Coordinate { row = 0, col = 4, team = Team.Black } };
+            grid[0, 5] = new PieceClass { pieceType = Piece.Bishop, team = Team.Black, position = new Coordinate { row = 0, col = 5, team = Team.Black } };
+            grid[0, 6] = new PieceClass { pieceType = Piece.Knight, team = Team.Black, position = new Coordinate { row = 0, col = 6, team = Team.Black } };
+            grid[0, 7] = new PieceClass { pieceType = Piece.Rook, team = Team.Black, position = new Coordinate { row = 0, col = 7, team = Team.Black } };
 
-            grid[7, 0] = new PieceClass { pieceType = Piece.Rook, team = Team.Black, position = new Coordinate { row = 7, col = 0 } };
-            grid[7, 1] = new PieceClass { pieceType = Piece.Knight, team = Team.Black, position = new Coordinate { row = 7, col = 1 } };
-            grid[7, 2] = new PieceClass { pieceType = Piece.Bishop, team = Team.Black, position = new Coordinate { row = 7, col = 2 } };
-            grid[7, 3] = new PieceClass { pieceType = Piece.Queen, team = Team.Black, position = new Coordinate { row = 7, col = 3 } };
-            grid[7, 4] = new PieceClass { pieceType = Piece.King, team = Team.Black, position = new Coordinate { row = 7, col = 4 } };
-            grid[7, 5] = new PieceClass { pieceType = Piece.Bishop, team = Team.Black, position = new Coordinate { row = 7, col = 5 } };
-            grid[7, 6] = new PieceClass { pieceType = Piece.Knight, team = Team.Black, position = new Coordinate { row = 7, col = 6 } };
-            grid[7, 7] = new PieceClass { pieceType = Piece.Rook, team = Team.Black, position = new Coordinate { row = 7, col = 7 } };
+            grid[7, 0] = new PieceClass { pieceType = Piece.Rook, team = Team.White, position = new Coordinate { row = 7, col = 0, team = Team.White } };
+            grid[7, 1] = new PieceClass { pieceType = Piece.Knight, team = Team.White, position = new Coordinate { row = 7, col = 1, team = Team.White } };
+            grid[7, 2] = new PieceClass { pieceType = Piece.Bishop, team = Team.White, position = new Coordinate { row = 7, col = 2, team = Team.White } };
+            grid[7, 3] = new PieceClass { pieceType = Piece.Queen, team = Team.White, position = new Coordinate { row = 7, col = 3, team = Team.White } };
+            grid[7, 4] = new PieceClass { pieceType = Piece.King, team = Team.White, position = new Coordinate { row = 7, col = 4, team = Team.White } };
+            grid[7, 5] = new PieceClass { pieceType = Piece.Bishop, team = Team.White, position = new Coordinate { row = 7, col = 5, team = Team.White } };
+            grid[7, 6] = new PieceClass { pieceType = Piece.Knight, team = Team.White, position = new Coordinate { row = 7, col = 6, team = Team.White } };
+            grid[7, 7] = new PieceClass { pieceType = Piece.Rook, team = Team.White, position = new Coordinate { row = 7, col = 7, team = Team.White } };
 
             for (int i = 0; i < 8; i++)
             {
-                grid[1, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.White, position = new Coordinate { row = 1, col = i }, hasMoved = false };
-                grid[6, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.Black, position = new Coordinate { row = 6, col = i }, hasMoved = false };
+                grid[1, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.Black, position = new Coordinate { row = 1, col = i, team = Team.Black }, hasMoved = false };
+                grid[6, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.White, position = new Coordinate { row = 6, col = i, team = Team.White }, hasMoved = false };
             }
 
             for (int R = 2; R < 6; R++)
             {
                 for (int C = 0; C < 8; C++)
                 {
-                    grid[R, C] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = new Coordinate { row = R, col = C } };
+                    grid[R, C] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = new Coordinate { row = R, col = C, team = Team.Blank } };
                 }
             }
 
             for (int i = 0; i < 8; i++)
             {
-                whiteActive.Add(grid[0, i]);
-                whiteActive.Add(grid[1, i]);
-                blackActive.Add(grid[6, i]);
-                blackActive.Add(grid[7, i]);
+                whiteActive.Add(grid[6, i]);
+                whiteActive.Add(grid[7, i]);
+                blackActive.Add(grid[0, i]);
+                blackActive.Add(grid[1, i]);
             }
         }
     }

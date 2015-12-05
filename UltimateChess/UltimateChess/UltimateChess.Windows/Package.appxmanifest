@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="b687836c-74ed-422f-9a1c-176cc2ec28fb" Publisher="CN=ecarrell" Version="1.0.0.0" />
+  <Identity Name="b687836c-74ed-422f-9a1c-176cc2ec28fb" Publisher="CN=awebb" Version="1.0.0.0" />
   <Properties>
     <DisplayName>UltimateChess.Windows</DisplayName>
     <PublisherDisplayName>awebb</PublisherDisplayName>
