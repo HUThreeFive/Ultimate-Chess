@@ -234,6 +234,13 @@ namespace UltimateChess
                     }
                 }
             }
+            else
+            {
+                //Clicked on rectangle
+                rect = e.OriginalSource as Rectangle;
+                Coordinate p = rect.Tag as Coordinate;
+                moves = new List<Coordinate>(grid.PossibleMoves(p, p.team));
+            }
         }
 
         private void LoadPieceImages()
