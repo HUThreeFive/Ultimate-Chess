@@ -712,10 +712,10 @@ namespace UltimateChess
             for (int i = 0; i < 8; i++)
             {
                 grid[1, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.Black, position = new Coordinate { row = 1, col = i, team = Team.Black }, hasMoved = false };
-                //grid[6, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.White, position = new Coordinate { row = 6, col = i, team = Team.White }, hasMoved = false };
+                grid[6, i] = new PieceClass { pieceType = Piece.Pawn, team = Team.White, position = new Coordinate { row = 6, col = i, team = Team.White }, hasMoved = false };
             }
 
-            for (int R = 2; R < 7; R++)
+            for (int R = 2; R < 6; R++)
             {
                 for (int C = 0; C < 8; C++)
                 {
