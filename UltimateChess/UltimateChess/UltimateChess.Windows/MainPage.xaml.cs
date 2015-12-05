@@ -27,6 +27,7 @@ namespace UltimateChess
     public sealed partial class MainPage : Page
     {
         public bool firstClick = true;
+        public Coordinate firstCoordinate;
         private int squareSize;
         public GridModel grid;
 
@@ -155,6 +156,7 @@ namespace UltimateChess
                 if (firstClick)
                 {
                     moves = new List<Coordinate>(grid.PossibleMoves(p.position, p.position.team));
+                    firstCoordinate = new Coordinate { row = p.position.row, col = p.position.col, team = p.team };
                     firstClick = false;
                 }
                 else
@@ -239,8 +241,98 @@ namespace UltimateChess
                 //Clicked on rectangle
                 rect = e.OriginalSource as Rectangle;
                 Coordinate p = rect.Tag as Coordinate;
-                moves = new List<Coordinate>(grid.PossibleMoves(p, p.team));
+                moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
+
+                if (moves.Exists(x => (x.row == p.row && x.col == p.col)))
+                {
+                    grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.row, col = p.col }, firstCoordinate.team);
+
+                    foreach (UIElement child in canvasBoard.Children.ToList())
+                    {
+                        if (clickedImage.GetType() == child.GetType())
+                        {
+                            clickedImage = child as Image;
+                            canvasBoard.Children.Remove(child);
+                            canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
+                            break;
+                        }
+                    }
+                }
             }
+        }
+
+        private Image SetImageProperties (Image image, Coordinate coord)
+        {
+            PieceClass imagePiece = image.Tag as PieceClass;
+
+            if (imagePiece.team == Team.White)
+            {
+                switch (imagePiece.pieceType)
+                {
+                    case Piece.Pawn:
+                        //Add White pawn to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnWhite.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
+                    case Piece.Bishop:
+                        break;
+                    case Piece.King:
+                        break;
+                    case Piece.Knight:
+                        break;
+                    case Piece.Queen:
+                        break;
+                    case Piece.Rook:
+                        //Add White Rook
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookWhite.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        canvasBoard.Children.Add(image);
+                        return image;
+                }
+            }
+            else
+            {
+                switch (imagePiece.pieceType)
+                {
+                    case Piece.Pawn: 
+                        //Add Black pawn to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnBlack.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
+                    case Piece.Bishop:
+                        break;
+                    case Piece.King:
+                        break;
+                    case Piece.Knight:
+                        break;
+                    case Piece.Queen:
+                        break;
+                    case Piece.Rook:
+                        //Add Black Rook
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookBlack.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        canvasBoard.Children.Add(image);
+                        return image;
+                }
+            }
+            return image;
+            
         }
 
         private void LoadPieceImages()
