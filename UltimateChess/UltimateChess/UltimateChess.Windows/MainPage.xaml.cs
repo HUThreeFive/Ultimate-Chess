@@ -51,7 +51,7 @@ namespace UltimateChess
 
         private void CanvasSetUp()
         {
-            if(canvasBoard.ActualWidth < canvasBoard.ActualHeight)
+            if (canvasBoard.ActualWidth < canvasBoard.ActualHeight)
             {
                 canvasBoard.Height = canvasBoard.Width;
             }
@@ -73,7 +73,7 @@ namespace UltimateChess
                 {
                     Rectangle square = new Rectangle();
 
-                    if(flipflop)
+                    if (flipflop)
                     {
                         square.Fill = white;
                     }
@@ -110,11 +110,6 @@ namespace UltimateChess
             //Canvas.SetLeft(blackPawn, 5 * squareSize);
             //Canvas.SetZIndex(blackPawn, 5);
             //canvasBoard.Children.Add(blackPawn);
-        }
-
-        private void StoryBoardSetup()
-        {
-
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)

@@ -64,7 +64,7 @@ namespace UltimateChess
             }
 
             //function to check moves against putting own king in check
-            //possibleMoves = WillKingBeInCheck(possibleMoves, coord, player);
+            possibleMoves = WillKingBeInCheck(possibleMoves, coord, player);
 
             return possibleMoves;
         }
@@ -369,24 +369,7 @@ namespace UltimateChess
             }
 
             copyOfGrid[destination.row, destination.col] = copyOfGrid[source.row, source.col];
-
-            if (player == Team.White)
-            {
-                PieceClass piece = whiteActiveCopy.Find(x => (x.position.col == source.col && x.position.row == source.row));
-                int index = whiteActiveCopy.IndexOf(piece);
-                whiteActiveCopy.RemoveAt(index);
-                piece.position = destination;
-                whiteActiveCopy.Add(piece);
-            }
-            else
-            {
-                PieceClass piece = blackActiveCopy.Find(x => (x.position.col == source.col && x.position.row == source.row));
-                int index = blackActiveCopy.IndexOf(piece);
-                blackActiveCopy.RemoveAt(index);
-                piece.position = destination;
-                blackActiveCopy.Add(piece);
-            }
-
+            copyOfGrid[destination.row, destination.col].position = new Coordinate { row = destination.row, col = destination.col, team = player };
             copyOfGrid[destination.row, destination.col].position = destination;
             copyOfGrid[source.row, source.col] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = source };
         }
