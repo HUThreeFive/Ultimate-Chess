@@ -151,36 +151,73 @@ namespace UltimateChess
             Rectangle rect = new Rectangle();
             SolidColorBrush gray = new SolidColorBrush(Colors.Gray);
             SolidColorBrush white = new SolidColorBrush(Colors.White);
-
             if (clickedImage.GetType() == e.OriginalSource.GetType())
             {
                 clickedImage = e.OriginalSource as Image;
                 PieceClass p = clickedImage.Tag as PieceClass;
                 List<Coordinate> moves = grid.PossibleMoves(p.position, p.position.team);
 
+                foreach (UIElement children in canvasBoard.Children.ToList())
+                {
+                    if (children.GetType() == rect.GetType())
+                    {
+                        rect = children as Rectangle;
+
+                        SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
+                        Coordinate coord = new Coordinate();
+                        coord = rect.Tag as Coordinate;
+
+                        if (brushOld.Color.G == 225 || brushOld.Color.R == 225)
+                        {
+                            if (brushOld.Color.B == 128)
+                            {
+                                rect.Fill = white;
+                                canvasBoard.Children.Remove(children);
+                                Canvas.SetLeft(rect, coord.col * squareSize);
+                                Canvas.SetTop(rect, coord.row * squareSize);
+                                Canvas.SetZIndex(rect, 0);
+                                rect.Height = rect.Width = squareSize;
+                                canvasBoard.Children.Add(rect);
+                            }
+                            else if (brushOld.Color.B == 0)
+                            {
+                                rect.Fill = gray;
+                                canvasBoard.Children.Remove(children);
+                                Canvas.SetLeft(rect, coord.col * squareSize);
+                                Canvas.SetTop(rect, coord.row * squareSize);
+                                Canvas.SetZIndex(rect, 0);
+                                rect.Height = rect.Width = squareSize;
+                                canvasBoard.Children.Add(rect);
+                            }
+                        }
+                    }
+                }
+
                 foreach (UIElement child in canvasBoard.Children.ToList())
                 {
                     if (child.GetType() == rect.GetType())
                     {
-                        rect = child as Rectangle;               
+                        rect = child as Rectangle;
+
+                        SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
+                        Coordinate coord = new Coordinate();
+                        coord = rect.Tag as Coordinate;
 
                         foreach (Coordinate move in moves)
                         {
-                            Coordinate coord = new Coordinate();
-                            coord = rect.Tag as Coordinate;
                             if (move.col == coord.col && move.row == coord.row)
                             {
-                                SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
+
 
                                 if (brushOld.Color.R == 255)
                                 {
                                     SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 128, 225, 128));
-                                    rect.Fill = brushWhite; 
+                                    rect.Fill = brushWhite;
                                 }
-                                else
+                                else if (brushOld.Color.R == 128)
                                 {
                                     SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 0, 225, 0));
-                                    rect.Fill = brushGrey; 
+                                    rect.Fill = brushGrey;
                                 }
 
                                 canvasBoard.Children.Remove(child);
@@ -189,12 +226,11 @@ namespace UltimateChess
                                 Canvas.SetZIndex(rect, 0);
                                 rect.Height = rect.Width = squareSize;
                                 canvasBoard.Children.Add(rect);
-                    //            break;
+                                //            break;
                             }
                         }
                     }
                 }
-                
             }
         }
 
