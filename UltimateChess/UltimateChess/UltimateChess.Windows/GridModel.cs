@@ -287,7 +287,7 @@ namespace UltimateChess
                 possibleMoves.Add(new Coordinate { row = baseCoord.row - i, col = baseCoord.col, team = grid[baseCoord.row - i, baseCoord.col].team });       //Up Vertically
             }
 
-            for (int i = 1; i < 8; i++)
+            for (int i = 1; i < 8; i++) 
             {
                 if (baseCoord.col - i < 0 || grid[baseCoord.row, baseCoord.col - i].team == baseCoord.team)
                     break;
