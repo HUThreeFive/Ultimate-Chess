@@ -296,6 +296,7 @@ namespace UltimateChess
                 else
                 {
                     ResetHighlightedSquares(rect, white, gray);
+                    moves.Clear();
                     firstClick = true;
                 }
             }
@@ -359,13 +360,41 @@ namespace UltimateChess
                         Canvas.SetZIndex(image, 1);
                         return image;
                     case Piece.Bishop:
-                        break;
+                        //Add White bishop to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishopWhite.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
                     case Piece.King:
-                        break;
+                        //Add White king to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/kingWhite.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
                     case Piece.Knight:
-                        break;
+                        //Add White knight to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knightWhite.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
                     case Piece.Queen:
-                        break;
+                        //Add White queen to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queenWhite.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
                     case Piece.Rook:
                         //Add White Rook
                         image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookWhite.png")), Width = squareSize, Height = squareSize };
@@ -391,13 +420,41 @@ namespace UltimateChess
                         Canvas.SetZIndex(image, 1);
                         return image;
                     case Piece.Bishop:
-                        break;
+                        //Add Black bishop to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishopBlack.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
                     case Piece.King:
-                        break;
+                        //Add Black king to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/kingBlack.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
                     case Piece.Knight:
-                        break;
+                        //Add Black knight to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knightBlack.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
                     case Piece.Queen:
-                        break;
+                        //Add Black queen to canvas
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queenBlack.png")), Width = squareSize, Height = squareSize };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+                        image.Tag = imagePiece;
+                        Canvas.SetTop(image, coord.row * squareSize);
+                        Canvas.SetLeft(image, coord.col * squareSize);
+                        Canvas.SetZIndex(image, 1);
+                        return image;
                     case Piece.Rook:
                         //Add Black Rook
                         image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookBlack.png")), Width = squareSize, Height = squareSize };
@@ -409,7 +466,9 @@ namespace UltimateChess
                         return image;
                 }
             }
-            return null;
+
+            //If program reaches this line; something went wrong with the piece type
+            return image;
         }
 
         private void LoadPieceImages()
