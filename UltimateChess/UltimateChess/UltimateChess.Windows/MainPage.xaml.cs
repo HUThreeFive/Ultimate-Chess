@@ -164,41 +164,43 @@ namespace UltimateChess
                     firstClick = true;
                 }
 
-                foreach (UIElement children in canvasBoard.Children.ToList())
-                {
-                    if (children.GetType() == rect.GetType())
-                    {
-                        rect = children as Rectangle;
+                ResetHighlightedSquares(rect, white, gray);
 
-                        SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
-                        Coordinate coord = new Coordinate();
-                        coord = rect.Tag as Coordinate;
+                //foreach (UIElement children in canvasBoard.Children.ToList())
+                //{
+                //    if (children.GetType() == rect.GetType())
+                //    {
+                //        rect = children as Rectangle;
 
-                        if (brushOld.Color.G == 225 || brushOld.Color.R == 225)
-                        {
-                            if (brushOld.Color.B == 128)
-                            {
-                                rect.Fill = white;
-                                canvasBoard.Children.Remove(children);
-                                Canvas.SetLeft(rect, coord.col * squareSize);
-                                Canvas.SetTop(rect, coord.row * squareSize);
-                                Canvas.SetZIndex(rect, 0);
-                                rect.Height = rect.Width = squareSize;
-                                canvasBoard.Children.Add(rect);
-                            }
-                            else if (brushOld.Color.B == 0)
-                            {
-                                rect.Fill = gray;
-                                canvasBoard.Children.Remove(children);
-                                Canvas.SetLeft(rect, coord.col * squareSize);
-                                Canvas.SetTop(rect, coord.row * squareSize);
-                                Canvas.SetZIndex(rect, 0);
-                                rect.Height = rect.Width = squareSize;
-                                canvasBoard.Children.Add(rect);
-                            }
-                        }
-                    }
-                }
+                //        SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
+                //        Coordinate coord = new Coordinate();
+                //        coord = rect.Tag as Coordinate;
+
+                //        if (brushOld.Color.G == 225 || brushOld.Color.R == 225)
+                //        {
+                //            if (brushOld.Color.B == 128)
+                //            {
+                //                rect.Fill = white;
+                //                canvasBoard.Children.Remove(children);
+                //                Canvas.SetLeft(rect, coord.col * squareSize);
+                //                Canvas.SetTop(rect, coord.row * squareSize);
+                //                Canvas.SetZIndex(rect, 0);
+                //                rect.Height = rect.Width = squareSize;
+                //                canvasBoard.Children.Add(rect);
+                //            }
+                //            else if (brushOld.Color.B == 0)
+                //            {
+                //                rect.Fill = gray;
+                //                canvasBoard.Children.Remove(children);
+                //                Canvas.SetLeft(rect, coord.col * squareSize);
+                //                Canvas.SetTop(rect, coord.row * squareSize);
+                //                Canvas.SetZIndex(rect, 0);
+                //                rect.Height = rect.Width = squareSize;
+                //                canvasBoard.Children.Add(rect);
+                //            }
+                //        }
+                //    }
+                //}
 
                 foreach (UIElement child in canvasBoard.Children.ToList())
                 {
@@ -277,9 +279,62 @@ namespace UltimateChess
                         if (clickedImage.GetType() == child.GetType())
                         {
                             clickedImage = child as Image;
-                            canvasBoard.Children.Remove(child);
-                            canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
-                            break;
+                            PieceClass tagInfo = clickedImage.Tag as PieceClass;
+
+                            //Check if image is the desired piece to move
+                            if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
+                            {
+                                canvasBoard.Children.Remove(child);
+                                canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
+                                ResetHighlightedSquares(rect, white, gray);
+                                firstClick = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ResetHighlightedSquares(rect, white, gray);
+                    firstClick = true;
+                }
+            }
+        }
+
+        //This function will reset the highlight squares on the board back to their original color (gray or white)
+        private void ResetHighlightedSquares (Rectangle rect, SolidColorBrush white, SolidColorBrush gray)
+        {
+            foreach (UIElement children in canvasBoard.Children.ToList())
+            {
+                if (children.GetType() == rect.GetType())
+                {
+                    rect = children as Rectangle;
+
+                    SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
+                    Coordinate coord = new Coordinate();
+                    coord = rect.Tag as Coordinate;
+
+                    if (brushOld.Color.G == 225 || brushOld.Color.R == 225)
+                    {
+                        if (brushOld.Color.B == 128)
+                        {
+                            rect.Fill = white;
+                            canvasBoard.Children.Remove(children);
+                            Canvas.SetLeft(rect, coord.col * squareSize);
+                            Canvas.SetTop(rect, coord.row * squareSize);
+                            Canvas.SetZIndex(rect, 0);
+                            rect.Height = rect.Width = squareSize;
+                            canvasBoard.Children.Add(rect);
+                        }
+                        else if (brushOld.Color.B == 0)
+                        {
+                            rect.Fill = gray;
+                            canvasBoard.Children.Remove(children);
+                            Canvas.SetLeft(rect, coord.col * squareSize);
+                            Canvas.SetTop(rect, coord.row * squareSize);
+                            Canvas.SetZIndex(rect, 0);
+                            rect.Height = rect.Width = squareSize;
+                            canvasBoard.Children.Add(rect);
                         }
                     }
                 }
