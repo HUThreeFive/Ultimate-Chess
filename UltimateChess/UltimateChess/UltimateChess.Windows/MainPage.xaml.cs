@@ -152,6 +152,7 @@ namespace UltimateChess
             {
                 clickedImage = e.OriginalSource as Image;
                 PieceClass p = clickedImage.Tag as PieceClass;
+                bool continueCode = true;
 
                 if (firstClick)
                 {
@@ -162,10 +163,23 @@ namespace UltimateChess
                 else
                 {
                     firstClick = true;
+                    moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
+
+                    //If image is an enemy piece from possible moves of the originally selected piece
+                    if (moves.Exists(x => (x.row == p.position.row && x.col == p.position.col)))
+                    {
+                        //Make Attack move
+                        grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.position.row, col = p.position.col }, firstCoordinate.team);
+                        MoveImages(null, clickedImage, moves, white, gray, true);
+                        continueCode = false;
+                    }
                 }
 
-                ResetHighlightedSquares(rect, white, gray);
-                HighlightSquares(moves, rect, white, gray);   
+                if (continueCode)
+                {
+                    ResetHighlightedSquares(white, gray);
+                    HighlightSquares(moves, white, gray);
+                }
             }
             else
             {
@@ -173,38 +187,62 @@ namespace UltimateChess
                 {
                     //Clicked on rectangle
                     rect = e.OriginalSource as Rectangle;
-                    Coordinate p = rect.Tag as Coordinate;
+                    Coordinate coord = rect.Tag as Coordinate;
                     moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
 
-                    if (moves.Exists(x => (x.row == p.row && x.col == p.col)))
+                    if (moves.Exists(x => (x.row == coord.row && x.col == coord.col)))
                     {
-                        grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.row, col = p.col }, firstCoordinate.team);
-
-                        foreach (UIElement child in canvasBoard.Children.ToList())
-                        {
-                            if (clickedImage.GetType() == child.GetType())
-                            {
-                                clickedImage = child as Image;
-                                PieceClass tagInfo = clickedImage.Tag as PieceClass;
-
-                                //Check if image is the desired piece to move
-                                if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
-                                {
-                                    canvasBoard.Children.Remove(child);
-                                    canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
-                                    ResetHighlightedSquares(rect, white, gray);
-                                    firstClick = true;
-                                    break;
-                                }
-                            }
-                        }
+                        grid.DetermineAction(firstCoordinate, new Coordinate() { row = coord.row, col = coord.col }, firstCoordinate.team);
+                        MoveImages(rect, new Image(), moves, white, gray, false);
                     }
                     else
                     {
-                        ResetHighlightedSquares(rect, white, gray);
+                        ResetHighlightedSquares(white, gray);
                         moves.Clear();
                         firstClick = true;
                     }
+
+                    //Unnecessary comments
+                    #region
+                    ////Clicked on rectangle
+                    //rect = e.OriginalSource as Rectangle;
+                    //Coordinate p = rect.Tag as Coordinate;
+                    //moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
+
+                    //if (moves.Exists(x => (x.row == p.row && x.col == p.col)))
+                    //{
+                    //    grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.row, col = p.col }, firstCoordinate.team);
+
+                    //    foreach (UIElement child in canvasBoard.Children.ToList())
+                    //    {
+                    //        if (clickedImage.GetType() == child.GetType())
+                    //        {
+                    //            clickedImage = child as Image;
+                    //            PieceClass tagInfo = clickedImage.Tag as PieceClass;
+
+                    //            //Check if image is the originally selected piece to move
+                    //            if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
+                    //            {
+                    //                canvasBoard.Children.Remove(child);
+                    //                canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
+                    //                ResetHighlightedSquares(rect, white, gray);
+                    //                firstClick = true;
+                    //            }
+                    //            //Check if image is the attacked piece
+                    //            else if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
+                    //            {
+                    //                canvasBoard.Children.Remove(child);
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    ResetHighlightedSquares(rect, white, gray);
+                    //    moves.Clear();
+                    //    firstClick = true;
+                    //}
+                    #endregion
                 }
                 else
                 {
@@ -214,9 +252,67 @@ namespace UltimateChess
             }
         }
 
-        //This function will reset the highlight squares on the board back to their original color (gray or white)
-        private void ResetHighlightedSquares (Rectangle rect, SolidColorBrush white, SolidColorBrush gray)
+        //Move a piece (standard move action) or pieces (attack move action)
+        private void MoveImages(Rectangle rect, Image clickedImage, List<Coordinate> moves, SolidColorBrush white, SolidColorBrush gray, bool isAttack)
         {
+            if (!isAttack)
+            {
+                Coordinate p = rect.Tag as Coordinate;
+
+                foreach (UIElement child in canvasBoard.Children.ToList())
+                {
+                    if (clickedImage.GetType() == child.GetType())
+                    {
+                        clickedImage = child as Image;
+                        PieceClass tagInfo = clickedImage.Tag as PieceClass;
+
+                        //Check if image is the originally selected piece to move
+                        if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
+                        {
+                            canvasBoard.Children.Remove(child);
+                            canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
+                            ResetHighlightedSquares(white, gray);
+                            firstClick = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //Attack
+                PieceClass imagePiece = clickedImage.Tag as PieceClass;
+
+                foreach (UIElement child in canvasBoard.Children.ToList())
+                {
+                    if (clickedImage.GetType() == child.GetType())
+                    {
+                        clickedImage = child as Image;
+                        PieceClass tagInfo = clickedImage.Tag as PieceClass;
+
+                        //Check if image is the originally selected piece to move
+                        if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
+                        {
+                            canvasBoard.Children.Remove(child);
+                            canvasBoard.Children.Add(SetImageProperties(clickedImage, imagePiece.position));
+                            ResetHighlightedSquares(white, gray);
+                            firstClick = true;
+                        }
+                        //Check if image is the attacked piece
+                        else if (tagInfo.position.row == imagePiece.position.row && tagInfo.position.col == imagePiece.position.col)
+                        {
+                            canvasBoard.Children.Remove(child);
+                        }
+                    }
+                }  
+            }
+        }
+
+        //This function will reset the highlight squares on the board back to their original color (gray or white)
+        private void ResetHighlightedSquares(SolidColorBrush white, SolidColorBrush gray)
+        {
+            Rectangle rect = new Rectangle();
+
             foreach (UIElement children in canvasBoard.Children.ToList())
             {
                 if (children.GetType() == rect.GetType())
@@ -254,8 +350,10 @@ namespace UltimateChess
             }
         }
 
-        private void HighlightSquares(List<Coordinate> moves, Rectangle rect, SolidColorBrush white, SolidColorBrush gray)
+        private void HighlightSquares(List<Coordinate> moves, SolidColorBrush white, SolidColorBrush gray)
         {
+            Rectangle rect = new Rectangle();
+
             foreach (UIElement child in canvasBoard.Children.ToList())
             {
                 if (child.GetType() == rect.GetType())
@@ -301,7 +399,7 @@ namespace UltimateChess
                                 }
                                 else if (brushOld.Color.B == 128)
                                 {
-                                    SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 225, 128, 0));
+                                    SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 225, 0, 0));
                                     rect.Fill = brushGrey;
                                 }
 
@@ -614,7 +712,7 @@ namespace UltimateChess
 
             //Add Black Queen
             Image blackQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queenBlack.png")), Width = squareSize, Height = squareSize };
-            imagePiece.position = new Coordinate() { row = 0, col = 5, team = Team.Black };
+            imagePiece.position = new Coordinate() { row = 0, col = 3, team = Team.Black };
             blackQueen.Tag = imagePiece;
             Canvas.SetTop(blackQueen, 0);
             Canvas.SetLeft(blackQueen, 3 * squareSize);
@@ -627,7 +725,7 @@ namespace UltimateChess
 
             //Add White Queen
             Image whiteQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queenWhite.png")), Width = squareSize, Height = squareSize };
-            imagePiece.position = new Coordinate() { row = 7, col = 5, team = Team.White };
+            imagePiece.position = new Coordinate() { row = 7, col = 3, team = Team.White };
             whiteQueen.Tag = imagePiece;
             Canvas.SetTop(whiteQueen, 7 * squareSize);
             Canvas.SetLeft(whiteQueen, 3 * squareSize);
