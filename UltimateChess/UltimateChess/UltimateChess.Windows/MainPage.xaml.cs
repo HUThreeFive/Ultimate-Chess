@@ -341,7 +341,7 @@ namespace UltimateChess
             }
         }
 
-        private Image SetImageProperties (Image image, Coordinate coord)
+        private Image SetImageProperties(Image image, Coordinate coord)
         {
             PieceClass imagePiece = image.Tag as PieceClass;
 
@@ -369,12 +369,11 @@ namespace UltimateChess
                     case Piece.Rook:
                         //Add White Rook
                         image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookWhite.png")), Width = squareSize, Height = squareSize };
-                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+                        imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
                         Canvas.SetLeft(image, coord.col * squareSize);
                         Canvas.SetZIndex(image, 1);
-                        canvasBoard.Children.Add(image);
                         return image;
                 }
             }
@@ -407,12 +406,10 @@ namespace UltimateChess
                         Canvas.SetTop(image, coord.row * squareSize);
                         Canvas.SetLeft(image, coord.col * squareSize);
                         Canvas.SetZIndex(image, 1);
-                        canvasBoard.Children.Add(image);
                         return image;
                 }
             }
-            return image;
-            
+            return null;
         }
 
         private void LoadPieceImages()
@@ -467,34 +464,31 @@ namespace UltimateChess
                     i = 7;      //Set i to 7 for the rooks on the right of the screen (at column 7)
                 }
 
-                for (int j = 0; j < 2; j++)
-                {
-                    imagePiece = new PieceClass();
-                    imagePiece.pieceType = Piece.Rook;
-                    imagePiece.team = Team.Black;
+                imagePiece = new PieceClass();
+                imagePiece.pieceType = Piece.Rook;
+                imagePiece.team = Team.Black;
 
-                    //Add Black Rook
-                    Image blackRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookBlack.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
-                    blackRook.Tag = imagePiece;
-                    Canvas.SetTop(blackRook, 0);
-                    Canvas.SetLeft(blackRook, i * squareSize);
-                    Canvas.SetZIndex(blackRook, 1);
-                    canvasBoard.Children.Add(blackRook);
+                //Add Black Rook
+                Image blackRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookBlack.png")), Width = squareSize, Height = squareSize };
+                imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
+                blackRook.Tag = imagePiece;
+                Canvas.SetTop(blackRook, 0);
+                Canvas.SetLeft(blackRook, i * squareSize);
+                Canvas.SetZIndex(blackRook, 1);
+                canvasBoard.Children.Add(blackRook);
 
-                    imagePiece = new PieceClass();
-                    imagePiece.pieceType = Piece.Rook;
-                    imagePiece.team = Team.White;
+                imagePiece = new PieceClass();
+                imagePiece.pieceType = Piece.Rook;
+                imagePiece.team = Team.White;
 
-                    //Add White Rook
-                    Image whiteRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookWhite.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
-                    whiteRook.Tag = imagePiece;
-                    Canvas.SetTop(whiteRook, 7 * squareSize);
-                    Canvas.SetLeft(whiteRook, i * squareSize);
-                    Canvas.SetZIndex(whiteRook, 1);
-                    canvasBoard.Children.Add(whiteRook);
-                }
+                //Add White Rook
+                Image whiteRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rookWhite.png")), Width = squareSize, Height = squareSize };
+                imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
+                whiteRook.Tag = imagePiece;
+                Canvas.SetTop(whiteRook, 7 * squareSize);
+                Canvas.SetLeft(whiteRook, i * squareSize);
+                Canvas.SetZIndex(whiteRook, 1);
+                canvasBoard.Children.Add(whiteRook);
             }
         }
 
@@ -509,34 +503,31 @@ namespace UltimateChess
                     i = 6;      //Set i to 7 for the rooks on the right of the screen (at column 7)
                 }
 
-                for (int j = 0; j < 2; j++)
-                {
-                    imagePiece = new PieceClass();
-                    imagePiece.pieceType = Piece.Knight;
-                    imagePiece.team = Team.Black;
+                imagePiece = new PieceClass();
+                imagePiece.pieceType = Piece.Knight;
+                imagePiece.team = Team.Black;
 
-                    //Add Black Knight
-                    Image blackKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knightBlack.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
-                    blackKnight.Tag = imagePiece;
-                    Canvas.SetTop(blackKnight, 0);
-                    Canvas.SetLeft(blackKnight, i * squareSize);
-                    Canvas.SetZIndex(blackKnight, 1);
-                    canvasBoard.Children.Add(blackKnight);
+                //Add Black Knight
+                Image blackKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knightBlack.png")), Width = squareSize, Height = squareSize };
+                imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
+                blackKnight.Tag = imagePiece;
+                Canvas.SetTop(blackKnight, 0);
+                Canvas.SetLeft(blackKnight, i * squareSize);
+                Canvas.SetZIndex(blackKnight, 1);
+                canvasBoard.Children.Add(blackKnight);
 
-                    imagePiece = new PieceClass();
-                    imagePiece.pieceType = Piece.Knight;
-                    imagePiece.team = Team.White;
+                imagePiece = new PieceClass();
+                imagePiece.pieceType = Piece.Knight;
+                imagePiece.team = Team.White;
 
-                    //Add White Knight
-                    Image whiteKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knightWhite.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
-                    whiteKnight.Tag = imagePiece;
-                    Canvas.SetTop(whiteKnight, 7 * squareSize);
-                    Canvas.SetLeft(whiteKnight, i * squareSize);
-                    Canvas.SetZIndex(whiteKnight, 1);
-                    canvasBoard.Children.Add(whiteKnight);
-                }
+                //Add White Knight
+                Image whiteKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knightWhite.png")), Width = squareSize, Height = squareSize };
+                imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
+                whiteKnight.Tag = imagePiece;
+                Canvas.SetTop(whiteKnight, 7 * squareSize);
+                Canvas.SetLeft(whiteKnight, i * squareSize);
+                Canvas.SetZIndex(whiteKnight, 1);
+                canvasBoard.Children.Add(whiteKnight);
             }
         }
 
@@ -551,34 +542,31 @@ namespace UltimateChess
                     i = 5;      //Set i to 7 for the rooks on the right of the screen (at column 7)
                 }
 
-                for (int j = 0; j < 2; j++)
-                {
-                    imagePiece = new PieceClass();
-                    imagePiece.pieceType = Piece.Bishop;
-                    imagePiece.team = Team.Black;
+                imagePiece = new PieceClass();
+                imagePiece.pieceType = Piece.Bishop;
+                imagePiece.team = Team.Black;
 
-                    //Add Black Bishop
-                    Image blackBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishopBlack.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
-                    blackBishop.Tag = imagePiece;
-                    Canvas.SetTop(blackBishop, 0);
-                    Canvas.SetLeft(blackBishop, i * squareSize);
-                    Canvas.SetZIndex(blackBishop, 1);
-                    canvasBoard.Children.Add(blackBishop);
+                //Add Black Bishop
+                Image blackBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishopBlack.png")), Width = squareSize, Height = squareSize };
+                imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
+                blackBishop.Tag = imagePiece;
+                Canvas.SetTop(blackBishop, 0);
+                Canvas.SetLeft(blackBishop, i * squareSize);
+                Canvas.SetZIndex(blackBishop, 1);
+                canvasBoard.Children.Add(blackBishop);
 
-                    imagePiece = new PieceClass();
-                    imagePiece.pieceType = Piece.Bishop;
-                    imagePiece.team = Team.White;
+                imagePiece = new PieceClass();
+                imagePiece.pieceType = Piece.Bishop;
+                imagePiece.team = Team.White;
 
-                    //Add White Bishop
-                    Image whiteBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishopWhite.png")), Width = squareSize, Height = squareSize };
-                    imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
-                    whiteBishop.Tag = imagePiece;
-                    Canvas.SetTop(whiteBishop, 7 * squareSize);
-                    Canvas.SetLeft(whiteBishop, i * squareSize);
-                    Canvas.SetZIndex(whiteBishop, 1);
-                    canvasBoard.Children.Add(whiteBishop);
-                }
+                //Add White Bishop
+                Image whiteBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishopWhite.png")), Width = squareSize, Height = squareSize };
+                imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
+                whiteBishop.Tag = imagePiece;
+                Canvas.SetTop(whiteBishop, 7 * squareSize);
+                Canvas.SetLeft(whiteBishop, i * squareSize);
+                Canvas.SetZIndex(whiteBishop, 1);
+                canvasBoard.Children.Add(whiteBishop);
             }
         }
 
