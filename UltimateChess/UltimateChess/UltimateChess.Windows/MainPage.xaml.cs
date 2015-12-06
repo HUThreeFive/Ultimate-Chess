@@ -265,37 +265,45 @@ namespace UltimateChess
             }
             else
             {
-                //Clicked on rectangle
-                rect = e.OriginalSource as Rectangle;
-                Coordinate p = rect.Tag as Coordinate;
-                moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
-
-                if (moves.Exists(x => (x.row == p.row && x.col == p.col)))
+                if (!firstClick)
                 {
-                    grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.row, col = p.col }, firstCoordinate.team);
+                    //Clicked on rectangle
+                    rect = e.OriginalSource as Rectangle;
+                    Coordinate p = rect.Tag as Coordinate;
+                    moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
 
-                    foreach (UIElement child in canvasBoard.Children.ToList())
+                    if (moves.Exists(x => (x.row == p.row && x.col == p.col)))
                     {
-                        if (clickedImage.GetType() == child.GetType())
-                        {
-                            clickedImage = child as Image;
-                            PieceClass tagInfo = clickedImage.Tag as PieceClass;
+                        grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.row, col = p.col }, firstCoordinate.team);
 
-                            //Check if image is the desired piece to move
-                            if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
+                        foreach (UIElement child in canvasBoard.Children.ToList())
+                        {
+                            if (clickedImage.GetType() == child.GetType())
                             {
-                                canvasBoard.Children.Remove(child);
-                                canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
-                                ResetHighlightedSquares(rect, white, gray);
-                                firstClick = true;
-                                break;
+                                clickedImage = child as Image;
+                                PieceClass tagInfo = clickedImage.Tag as PieceClass;
+
+                                //Check if image is the desired piece to move
+                                if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
+                                {
+                                    canvasBoard.Children.Remove(child);
+                                    canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
+                                    ResetHighlightedSquares(rect, white, gray);
+                                    firstClick = true;
+                                    break;
+                                }
                             }
                         }
+                    }
+                    else
+                    {
+                        ResetHighlightedSquares(rect, white, gray);
+                        moves.Clear();
+                        firstClick = true;
                     }
                 }
                 else
                 {
-                    ResetHighlightedSquares(rect, white, gray);
                     moves.Clear();
                     firstClick = true;
                 }
