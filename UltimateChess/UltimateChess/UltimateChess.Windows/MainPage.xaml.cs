@@ -166,42 +166,6 @@ namespace UltimateChess
 
                 ResetHighlightedSquares(rect, white, gray);
 
-                //foreach (UIElement children in canvasBoard.Children.ToList())
-                //{
-                //    if (children.GetType() == rect.GetType())
-                //    {
-                //        rect = children as Rectangle;
-
-                //        SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
-                //        Coordinate coord = new Coordinate();
-                //        coord = rect.Tag as Coordinate;
-
-                //        if (brushOld.Color.G == 225 || brushOld.Color.R == 225)
-                //        {
-                //            if (brushOld.Color.B == 128)
-                //            {
-                //                rect.Fill = white;
-                //                canvasBoard.Children.Remove(children);
-                //                Canvas.SetLeft(rect, coord.col * squareSize);
-                //                Canvas.SetTop(rect, coord.row * squareSize);
-                //                Canvas.SetZIndex(rect, 0);
-                //                rect.Height = rect.Width = squareSize;
-                //                canvasBoard.Children.Add(rect);
-                //            }
-                //            else if (brushOld.Color.B == 0)
-                //            {
-                //                rect.Fill = gray;
-                //                canvasBoard.Children.Remove(children);
-                //                Canvas.SetLeft(rect, coord.col * squareSize);
-                //                Canvas.SetTop(rect, coord.row * squareSize);
-                //                Canvas.SetZIndex(rect, 0);
-                //                rect.Height = rect.Width = squareSize;
-                //                canvasBoard.Children.Add(rect);
-                //            }
-                //        }
-                //    }
-                //}
-
                 foreach (UIElement child in canvasBoard.Children.ToList())
                 {
                     if (child.GetType() == rect.GetType())
