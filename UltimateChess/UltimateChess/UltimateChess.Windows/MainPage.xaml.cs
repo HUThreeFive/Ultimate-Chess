@@ -216,16 +216,18 @@ namespace UltimateChess
                         {
                             if (move.col == coord.col && move.row == coord.row)
                             {
-                                if (move.team != coord.team && move.team != Team.Blank)
+
+                                if (move.team == Team.Blank)
                                 {
+                                    //make green
                                     if (brushOld.Color.B == 255)
                                     {
-                                        SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 225, 128, 128));
+                                        SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 128, 225, 128));
                                         rect.Fill = brushWhite;
                                     }
                                     else if (brushOld.Color.B == 128)
                                     {
-                                        SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 225, 128, 0));
+                                        SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 0, 225, 0));
                                         rect.Fill = brushGrey;
                                     }
 
@@ -236,17 +238,17 @@ namespace UltimateChess
                                     rect.Height = rect.Width = squareSize;
                                     canvasBoard.Children.Add(rect);
                                 }
-
                                 else
                                 {
+                                    //make red
                                     if (brushOld.Color.B == 255)
                                     {
-                                        SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 128, 225, 128));
+                                        SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 225, 128, 128));
                                         rect.Fill = brushWhite;
                                     }
                                     else if (brushOld.Color.B == 128)
                                     {
-                                        SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 0, 225, 0));
+                                        SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 225, 128, 0));
                                         rect.Fill = brushGrey;
                                     }
 
