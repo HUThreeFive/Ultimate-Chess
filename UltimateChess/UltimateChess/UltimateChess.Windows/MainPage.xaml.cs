@@ -165,69 +165,7 @@ namespace UltimateChess
                 }
 
                 ResetHighlightedSquares(rect, white, gray);
-
-                foreach (UIElement child in canvasBoard.Children.ToList())
-                {
-                    if (child.GetType() == rect.GetType())
-                    {
-                        rect = child as Rectangle;
-
-                        SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
-                        Coordinate coord = new Coordinate();
-                        coord = rect.Tag as Coordinate;
-
-                        foreach (Coordinate move in moves)
-                        {
-                            if (move.col == coord.col && move.row == coord.row)
-                            {
-
-                                if (move.team == Team.Blank)
-                                {
-                                    //make green
-                                    if (brushOld.Color.B == 255)
-                                    {
-                                        SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 128, 225, 128));
-                                        rect.Fill = brushWhite;
-                                    }
-                                    else if (brushOld.Color.B == 128)
-                                    {
-                                        SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 0, 225, 0));
-                                        rect.Fill = brushGrey;
-                                    }
-
-                                    canvasBoard.Children.Remove(child);
-                                    Canvas.SetLeft(rect, coord.col * squareSize);
-                                    Canvas.SetTop(rect, coord.row * squareSize);
-                                    Canvas.SetZIndex(rect, 0);
-                                    rect.Height = rect.Width = squareSize;
-                                    canvasBoard.Children.Add(rect);
-                                }
-                                else
-                                {
-                                    //make red
-                                    if (brushOld.Color.B == 255)
-                                    {
-                                        SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 225, 128, 128));
-                                        rect.Fill = brushWhite;
-                                    }
-                                    else if (brushOld.Color.B == 128)
-                                    {
-                                        SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 225, 128, 0));
-                                        rect.Fill = brushGrey;
-                                    }
-
-                                    canvasBoard.Children.Remove(child);
-                                    Canvas.SetLeft(rect, coord.col * squareSize);
-                                    Canvas.SetTop(rect, coord.row * squareSize);
-                                    Canvas.SetZIndex(rect, 0);
-                                    rect.Height = rect.Width = squareSize;
-                                    canvasBoard.Children.Add(rect);
-                                }
-
-                            }
-                        }
-                    }
-                }
+                HighlightSquares(moves, rect, white, gray);   
             }
             else
             {
@@ -310,6 +248,71 @@ namespace UltimateChess
                             Canvas.SetZIndex(rect, 0);
                             rect.Height = rect.Width = squareSize;
                             canvasBoard.Children.Add(rect);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void HighlightSquares(List<Coordinate> moves, Rectangle rect, SolidColorBrush white, SolidColorBrush gray)
+        {
+            foreach (UIElement child in canvasBoard.Children.ToList())
+            {
+                if (child.GetType() == rect.GetType())
+                {
+                    rect = child as Rectangle;
+
+                    SolidColorBrush brushOld = rect.Fill as SolidColorBrush;
+                    Coordinate coord = new Coordinate();
+                    coord = rect.Tag as Coordinate;
+
+                    foreach (Coordinate move in moves)
+                    {
+                        if (move.col == coord.col && move.row == coord.row)
+                        {
+                            if (move.team == Team.Blank)
+                            {
+                                //make green
+                                if (brushOld.Color.B == 255)
+                                {
+                                    SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 128, 225, 128));
+                                    rect.Fill = brushWhite;
+                                }
+                                else if (brushOld.Color.B == 128)
+                                {
+                                    SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 0, 225, 0));
+                                    rect.Fill = brushGrey;
+                                }
+
+                                canvasBoard.Children.Remove(child);
+                                Canvas.SetLeft(rect, coord.col * squareSize);
+                                Canvas.SetTop(rect, coord.row * squareSize);
+                                Canvas.SetZIndex(rect, 0);
+                                rect.Height = rect.Width = squareSize;
+                                canvasBoard.Children.Add(rect);
+                            }
+                            else
+                            {
+                                //make red
+                                if (brushOld.Color.B == 255)
+                                {
+                                    SolidColorBrush brushWhite = new SolidColorBrush(Color.FromArgb(255, 225, 128, 128));
+                                    rect.Fill = brushWhite;
+                                }
+                                else if (brushOld.Color.B == 128)
+                                {
+                                    SolidColorBrush brushGrey = new SolidColorBrush(Color.FromArgb(255, 225, 128, 0));
+                                    rect.Fill = brushGrey;
+                                }
+
+                                canvasBoard.Children.Remove(child);
+                                Canvas.SetLeft(rect, coord.col * squareSize);
+                                Canvas.SetTop(rect, coord.row * squareSize);
+                                Canvas.SetZIndex(rect, 0);
+                                rect.Height = rect.Width = squareSize;
+                                canvasBoard.Children.Add(rect);
+                            }
+
                         }
                     }
                 }
