@@ -296,7 +296,7 @@ namespace UltimateChess
 
             for (int i = 1; i < 8; i++)
             {
-                if (baseCoord.col + i > 7 || grid[baseCoord.row, baseCoord.col + 1].team == baseCoord.team)
+                if (baseCoord.col + i > 7 || grid[baseCoord.row, baseCoord.col + i].team == baseCoord.team)
                     break;
                 possibleMoves.Add(new Coordinate { row = baseCoord.row, col = baseCoord.col + i, team = grid[baseCoord.row, baseCoord.col + 1].team });       //Right Horizontally
             }
