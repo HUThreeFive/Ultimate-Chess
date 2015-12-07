@@ -31,7 +31,7 @@
     </Grid>
 
     <Page.BottomAppBar>
-        <CommandBar>
+        <CommandBar x:Name="appBar">
             <AppBarButton x:Name="btnPlay" Icon="Play" Label="New Game" Click="btnPlay_Click"/>
             <AppBarButton x:Name="btnColor" Icon="Setting" Label="Color Settings" Click="btnColor_Click"/>
             <AppBarButton x:Name="btnHelp" Icon="Help" Label="Help" Click="btnHelp_Click"/>

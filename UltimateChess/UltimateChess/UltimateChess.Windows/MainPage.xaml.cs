@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -117,11 +118,13 @@ namespace UltimateChess
             canvasBoard.Children.Clear();
             CanvasSetUp();
             LoadPieceImages();
+            grid.Start();
+            firstClick = true;
         }
 
         private void btnColor_Click(object sender, RoutedEventArgs e)
         {
-
+            this.Frame.Navigate(typeof(ColorPage));
         }
 
         private void btnHelp_Click(object sender, RoutedEventArgs e)
@@ -253,7 +256,7 @@ namespace UltimateChess
         }
 
         //Move a piece (standard move action) or pieces (attack move action)
-        private void MoveImages(Rectangle rect, Image clickedImage, List<Coordinate> moves, SolidColorBrush white, SolidColorBrush gray, bool isAttack)
+        async private void MoveImages(Rectangle rect, Image clickedImage, List<Coordinate> moves, SolidColorBrush white, SolidColorBrush gray, bool isAttack)
         {
             if (!isAttack)
             {
@@ -302,6 +305,19 @@ namespace UltimateChess
                         else if (tagInfo.position.row == imagePiece.position.row && tagInfo.position.col == imagePiece.position.col)
                         {
                             canvasBoard.Children.Remove(child);
+                            if (tagInfo.pieceType == Piece.King)
+                            {
+                                if(tagInfo.team == Team.Black)
+                                {
+                                    var dialog = new MessageDialog("Congrats! You are the winner!", "White Team Wins!");
+                                    await dialog.ShowAsync();
+                                }
+                                else
+                                {
+                                    var dialog = new MessageDialog("Congrats! You are the winner!", "Black Team Wins!");
+                                    await dialog.ShowAsync();
+                                }
+                            }
                         }
                     }
                 }  

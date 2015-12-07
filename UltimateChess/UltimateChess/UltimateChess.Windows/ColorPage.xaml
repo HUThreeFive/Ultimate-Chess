@@ -1,0 +1,148 @@
+﻿<Page
+    x:Name="pageRoot"
+    x:Class="UltimateChess.ColorPage"
+    DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:UltimateChess"
+    xmlns:common="using:UltimateChess.Common"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <!-- TODO: Delete this line if the key AppName is declared in App.xaml -->
+        <x:String x:Key="AppName">My Application</x:String>
+    </Page.Resources>
+
+    <!--
+        This grid acts as a root panel for the page that defines two rows:
+        * Row 0 contains the back button and page title
+        * Row 1 contains the rest of the page layout
+    -->
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="140"/>
+            <RowDefinition Height="80"/>
+
+
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Back button and page title -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        VerticalAlignment="Top"
+                        AutomationProperties.Name="Back"
+                        AutomationProperties.AutomationId="BackButton"
+                        AutomationProperties.ItemType="Navigation Button"/>
+            <TextBlock x:Name="pageTitle" Text="Colors" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" Grid.Row="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+        </Grid>
+
+        <TextBlock x:Name="teamOneLabel" Grid.Row="1" Grid.Column="0" FontSize="48" TextAlignment="Center" Margin="0,20,0,0">
+            White Team
+        </TextBlock>
+
+        <TextBlock x:Name="teamTwoLabel" Grid.Row="1" Grid.Column="1" FontSize="48" TextAlignment="Center" Margin="0,20,0,0">
+            Black Team
+        </TextBlock>
+
+
+        <Grid Grid.Row="2" Margin="183,20,190,0" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+
+            <RadioButton x:Name="teamOneRdoWhite" Grid.Row="0" Grid.Column="0" GroupName="teamOneColors" IsChecked="True" FontSize="16" Margin="0,11,0,10" Checked="teamOneRdo_Checked" Tag="White">
+                White
+            </RadioButton>
+            <RadioButton x:Name="teamOneRdoBlack" Grid.Row="1" Grid.Column="0" GroupName="teamOneColors" Tag="Black" Checked="teamOneRdo_Checked">
+                Black
+            </RadioButton>
+            <RadioButton x:Name="teamOneRdoBlue" Grid.Row="2" Grid.Column="0" GroupName="teamOneColors" Tag="Blue" Checked="teamOneRdo_Checked">
+                Blue
+            </RadioButton>
+            <RadioButton x:Name="teamOneRdoGreen" Grid.Row="3" Grid.Column="0" GroupName="teamOneColors" Tag="Green" Checked="teamOneRdo_Checked">
+                Green
+            </RadioButton>
+            <RadioButton x:Name="teamOneRdoOrange" Grid.Row="4" Grid.Column="0" GroupName="teamOneColors" Tag="Orange" Checked="teamOneRdo_Checked">
+                Orange
+            </RadioButton>
+            <RadioButton x:Name="teamOneRdoPurple" Grid.Row="5" Grid.Column="0" GroupName="teamOneColors" Tag="Purple" Checked="teamOneRdo_Checked">
+                Purple
+            </RadioButton>
+            <RadioButton x:Name="teamOneRdoRed" Grid.Row="6" Grid.Column="0" GroupName="teamOneColors" Tag="Red" Checked="teamOneRdo_Checked">
+                Red
+            </RadioButton>
+            <RadioButton x:Name="teamOneRdoYellow" Grid.Row="7" Grid.Column="0" GroupName="teamOneColors" Tag="Yellow" Checked="teamOneRdo_Checked">
+                Yellow
+            </RadioButton>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="183,20,190,0" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+
+            <RadioButton x:Name="teamTwoRdoWhite" Grid.Row="0" Grid.Column="0" GroupName="teamTwoColors" IsChecked="False" FontSize="16" Margin="0,0,0,10" Tag="White">
+                White
+            </RadioButton>
+            <RadioButton x:Name="teamTwoRdoBlack" Grid.Row="1" Grid.Column="0" GroupName="teamTwoColors" IsChecked="True" Tag="Black">
+                Black
+            </RadioButton>
+            <RadioButton x:Name="teamTwoRdoBlue" Grid.Row="2" Grid.Column="0" GroupName="teamTwoColors" Tag="Blue">
+                Blue
+            </RadioButton>
+            <RadioButton x:Name="teamTwoRdoGreen" Grid.Row="3" Grid.Column="0" GroupName="teamTwoColors" Tag="Green">
+                Green
+            </RadioButton>
+            <RadioButton x:Name="teamTwoRdoOrange" Grid.Row="4" Grid.Column="0" GroupName="teamTwoColors" Tag="Orange">
+                Orange
+            </RadioButton>
+            <RadioButton x:Name="teamTwoRdoPurple" Grid.Row="5" Grid.Column="0" GroupName="teamTwoColors" Tag="Purple">
+                Purple
+            </RadioButton>
+            <RadioButton x:Name="teamTwoRdoRed" Grid.Row="6" Grid.Column="0" GroupName="teamTwoColors" Tag="Red">
+                Red
+            </RadioButton>
+            <RadioButton x:Name="teamTwoRdoYellow" Grid.Row="7" Grid.Column="0" GroupName="teamTwoColors" Tag="Yellow">
+                Yellow
+            </RadioButton>
+        </Grid>
+    </Grid>
+</Page>

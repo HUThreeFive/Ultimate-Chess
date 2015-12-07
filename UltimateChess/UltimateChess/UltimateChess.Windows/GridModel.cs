@@ -598,7 +598,7 @@ namespace UltimateChess
                 Attack(playerPiece, destination, player);
             }
 
-            CheckForCheck(player);
+            //CheckForCheck(player);
         }
 
         private void Attack(Coordinate source, Coordinate destination, Team player)
