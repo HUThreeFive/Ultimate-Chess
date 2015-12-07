@@ -19,8 +19,8 @@
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>-->
         
-        <Grid x:Name="whiteCapturedPanel" Grid.Column="0" Grid.Row="1" Background="#FFC52727"/>
-        <Grid x:Name="blackCapturedPanel" Grid.Column="2" Grid.Row="1" Background="#FFC52727"/>
+        <Canvas x:Name="whiteCapturedCanvas" Grid.Column="0" Grid.Row="1" Background="#FFC52727"/>
+        <Canvas x:Name="blackCapturedCanvas" Grid.Column="2" Grid.Row="1" Background="#FFC52727"/>
 
         <Canvas x:Name="canvasBoard" Grid.Column="1" Grid.Row="1" Background="#FF340D0D" Canvas.ZIndex="0" PointerPressed="canvasBoard_PointerPressed" />
     </Grid>

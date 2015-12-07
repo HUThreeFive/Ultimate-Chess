@@ -31,8 +31,8 @@ namespace UltimateChess
         public Coordinate firstCoordinate;
         private int squareSize;
         public GridModel grid;
-        private List<String> capturedWhitePieces;
-        private List<String> capturedBlackPieces;
+        private List<String> capturedWhitePieces = new List<String>();
+        private List<String> capturedBlackPieces = new List<String>();
 
         public MainPage()
         {
@@ -103,21 +103,10 @@ namespace UltimateChess
             }
         }
 
-        private void CapturedPanelSetUp()
+        private void CapturedCanvasSetUp()
         {
-            whiteCapturedPanel.Height = blackCapturedPanel.Height = canvasBoard.ActualHeight;
-            whiteCapturedPanel.Width = blackCapturedPanel.Width = squareSize * 2;
-            double panelWidth = whiteCapturedPanel.Width;
-
-            whiteCapturedPanel.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(panelWidth / 2) });
-            blackCapturedPanel.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(panelWidth / 2) });
-
-            for (int i = 0; i < 8; i++)
-            {
-                whiteCapturedPanel.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(squareSize) });
-                blackCapturedPanel.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(squareSize) });
-            }
-                
+            whiteCapturedCanvas.Height = blackCapturedCanvas.Height = canvasBoard.ActualHeight;
+            whiteCapturedCanvas.Width = blackCapturedCanvas.Width = squareSize * 2;
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
@@ -127,6 +116,11 @@ namespace UltimateChess
             LoadPieceImages();
             grid.Start();
             firstClick = true;
+
+            whiteCapturedCanvas.Children.Clear();
+            blackCapturedCanvas.Children.Clear();
+            capturedBlackPieces.Clear();
+            capturedWhitePieces.Clear();
         }
 
         private void btnColor_Click(object sender, RoutedEventArgs e)
@@ -148,7 +142,7 @@ namespace UltimateChess
         {
             CanvasSetUp();
             LoadPieceImages();
-            CapturedPanelSetUp();
+            CapturedCanvasSetUp();
         }
 
         private void canvasBoard_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -182,8 +176,9 @@ namespace UltimateChess
                         //Make Attack move
                         grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.position.row, col = p.position.col }, firstCoordinate.team);
                         MoveImages(null, clickedImage, moves, white, gray, true);
+                        AddCapturedImage(p);
                         continueCode = false;
-                        AddCapturedImage(clickedImage, p);
+                        
                     }
                 }
 
@@ -292,19 +287,73 @@ namespace UltimateChess
         }
 
         //Take the attacked piece and move to relevant captured panel or increase value already on panel for captured piece
-        private void AddCapturedImage(Image capturedImage, PieceClass pieceInfo)
+        private void AddCapturedImage(PieceClass piece)
         {
-            if (pieceInfo.team == Team.White)
-            {
-                String type = pieceInfo.pieceType.ToString();
-                //if (capturedWhitePieces.Exists(type))
-                //{
+            Image cappedImage = new Image();
+            cappedImage.Tag = piece;
+            cappedImage = SetImageProperties(cappedImage, new Coordinate() { row = 0, col = 0 });
 
-                //}
+            if (piece.team == Team.White)
+            {
+                String type = piece.pieceType.ToString();
+                if (capturedWhitePieces.Contains(type))
+                {
+                    //Increase piece counter
+                    IncrementCapturedCounter(type);
+                }
+                else
+                {
+                    //Add piece to panel
+                    capturedWhitePieces.Add(piece.pieceType.ToString());
+                    TextBox textBox = new TextBox();
+                    textBox.Text = "x1";
+                    textBox.Tag = Convert.ToString(((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" +  type;
+                    Canvas.SetLeft(textBox, 0);
+                    Canvas.SetTop(textBox, (((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)));
+                    whiteCapturedCanvas.Children.Add(textBox);
+                    
+                    Canvas.SetLeft(cappedImage, squareSize);
+                    Canvas.SetTop(cappedImage, squareSize * (capturedWhitePieces.Count() - 1));
+                    whiteCapturedCanvas.Children.Add(cappedImage);
+                }
             }
             else
             {
 
+            }
+        }
+
+        private void IncrementCapturedCounter (String type)
+        {
+            TextBox box = new TextBox();
+
+            foreach (UIElement child in whiteCapturedCanvas.Children.ToList())
+            {
+                if (box.GetType() == child.GetType())
+                {
+                    box = child as TextBox;
+                    String testType = box.Tag as String;
+                    String position = (testType.Split('|')[0]);
+                    int pos = Convert.ToInt32(position);
+                    testType = testType.Split('|')[1];
+
+                    if (testType == type)
+                    {
+                        whiteCapturedCanvas.Children.Remove(child);
+                        testType = box.Text;
+                        testType = testType.Split('x')[1];
+                        int num = Convert.ToInt32(testType);
+                        num++;
+                        testType = "x" + Convert.ToString(num);
+
+                        box.Text = testType;
+                        box.Tag = Convert.ToString(((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
+                        Canvas.SetLeft(box, 0);
+                        Canvas.SetTop(box, (pos));
+                        whiteCapturedCanvas.Children.Add(box);
+                        break;
+                    }
+                }
             }
         }
 
