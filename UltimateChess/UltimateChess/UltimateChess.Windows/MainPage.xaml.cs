@@ -31,12 +31,14 @@ namespace UltimateChess
         public Coordinate firstCoordinate;
         private int squareSize;
         public GridModel grid;
+        private List<String> capturedWhitePieces;
+        private List<String> capturedBlackPieces;
 
         public MainPage()
         {
             this.InitializeComponent();
             grid = new GridModel();
-            grid.Start();       
+            grid.Start();
             LayoutGridSetUp();
         }
 
@@ -99,18 +101,23 @@ namespace UltimateChess
                 }
                 flipflop = !flipflop;
             }
+        }
 
-            //Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/King_Black.png")), Width = squareSize, Height = squareSize };
-            //Canvas.SetTop(blackKing, 0);
-            //Canvas.SetLeft(blackKing, 3 * squareSize);
-            //Canvas.SetZIndex(blackKing, 1);
-            //canvasBoard.Children.Add(blackKing);
+        private void CapturedPanelSetUp()
+        {
+            whiteCapturedPanel.Height = blackCapturedPanel.Height = canvasBoard.ActualHeight;
+            whiteCapturedPanel.Width = blackCapturedPanel.Width = squareSize * 2;
+            double panelWidth = whiteCapturedPanel.Width;
 
-            //Image blackPawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawnBlack.png")), Width = squareSize, Height = squareSize };
-            //Canvas.SetTop(blackPawn, 1);
-            //Canvas.SetLeft(blackPawn, 5 * squareSize);
-            //Canvas.SetZIndex(blackPawn, 5);
-            //canvasBoard.Children.Add(blackPawn);
+            whiteCapturedPanel.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(panelWidth / 2) });
+            blackCapturedPanel.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(panelWidth / 2) });
+
+            for (int i = 0; i < 8; i++)
+            {
+                whiteCapturedPanel.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(squareSize) });
+                blackCapturedPanel.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(squareSize) });
+            }
+                
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
@@ -141,6 +148,7 @@ namespace UltimateChess
         {
             CanvasSetUp();
             LoadPieceImages();
+            CapturedPanelSetUp();
         }
 
         private void canvasBoard_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -175,6 +183,7 @@ namespace UltimateChess
                         grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.position.row, col = p.position.col }, firstCoordinate.team);
                         MoveImages(null, clickedImage, moves, white, gray, true);
                         continueCode = false;
+                        AddCapturedImage(clickedImage, p);
                     }
                 }
 
@@ -204,48 +213,6 @@ namespace UltimateChess
                         moves.Clear();
                         firstClick = true;
                     }
-
-                    //Unnecessary comments
-                    #region
-                    ////Clicked on rectangle
-                    //rect = e.OriginalSource as Rectangle;
-                    //Coordinate p = rect.Tag as Coordinate;
-                    //moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
-
-                    //if (moves.Exists(x => (x.row == p.row && x.col == p.col)))
-                    //{
-                    //    grid.DetermineAction(firstCoordinate, new Coordinate() { row = p.row, col = p.col }, firstCoordinate.team);
-
-                    //    foreach (UIElement child in canvasBoard.Children.ToList())
-                    //    {
-                    //        if (clickedImage.GetType() == child.GetType())
-                    //        {
-                    //            clickedImage = child as Image;
-                    //            PieceClass tagInfo = clickedImage.Tag as PieceClass;
-
-                    //            //Check if image is the originally selected piece to move
-                    //            if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
-                    //            {
-                    //                canvasBoard.Children.Remove(child);
-                    //                canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
-                    //                ResetHighlightedSquares(rect, white, gray);
-                    //                firstClick = true;
-                    //            }
-                    //            //Check if image is the attacked piece
-                    //            else if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
-                    //            {
-                    //                canvasBoard.Children.Remove(child);
-                    //            }
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    ResetHighlightedSquares(rect, white, gray);
-                    //    moves.Clear();
-                    //    firstClick = true;
-                    //}
-                    #endregion
                 }
                 else
                 {
@@ -321,6 +288,23 @@ namespace UltimateChess
                         }
                     }
                 }  
+            }
+        }
+
+        //Take the attacked piece and move to relevant captured panel or increase value already on panel for captured piece
+        private void AddCapturedImage(Image capturedImage, PieceClass pieceInfo)
+        {
+            if (pieceInfo.team == Team.White)
+            {
+                String type = pieceInfo.pieceType.ToString();
+                //if (capturedWhitePieces.Exists(type))
+                //{
+
+                //}
+            }
+            else
+            {
+
             }
         }
 
