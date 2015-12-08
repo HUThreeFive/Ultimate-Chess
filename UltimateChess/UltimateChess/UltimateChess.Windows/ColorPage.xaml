@@ -119,28 +119,28 @@
                 <ColumnDefinition Width="150"/>
             </Grid.ColumnDefinitions>
 
-            <RadioButton x:Name="teamTwoRdoWhite" Grid.Row="0" Grid.Column="0" GroupName="teamTwoColors" IsChecked="False" FontSize="16" Margin="0,0,0,10" Tag="White">
+            <RadioButton x:Name="teamTwoRdoWhite" Grid.Row="0" Grid.Column="0" GroupName="teamTwoColors" IsChecked="False" FontSize="16" Margin="0,0,0,10" Tag="White" Checked="teamTwoRdo_Checked">
                 White
             </RadioButton>
-            <RadioButton x:Name="teamTwoRdoBlack" Grid.Row="1" Grid.Column="0" GroupName="teamTwoColors" IsChecked="True" Tag="Black">
+            <RadioButton x:Name="teamTwoRdoBlack" Grid.Row="1" Grid.Column="0" GroupName="teamTwoColors" IsChecked="True" Tag="Black" Checked="teamTwoRdo_Checked">
                 Black
             </RadioButton>
-            <RadioButton x:Name="teamTwoRdoBlue" Grid.Row="2" Grid.Column="0" GroupName="teamTwoColors" Tag="Blue">
+            <RadioButton x:Name="teamTwoRdoBlue" Grid.Row="2" Grid.Column="0" GroupName="teamTwoColors" Tag="Blue" Checked="teamTwoRdo_Checked">
                 Blue
             </RadioButton>
-            <RadioButton x:Name="teamTwoRdoGreen" Grid.Row="3" Grid.Column="0" GroupName="teamTwoColors" Tag="Green">
+            <RadioButton x:Name="teamTwoRdoGreen" Grid.Row="3" Grid.Column="0" GroupName="teamTwoColors" Tag="Green" Checked="teamTwoRdo_Checked">
                 Green
             </RadioButton>
-            <RadioButton x:Name="teamTwoRdoOrange" Grid.Row="4" Grid.Column="0" GroupName="teamTwoColors" Tag="Orange">
+            <RadioButton x:Name="teamTwoRdoOrange" Grid.Row="4" Grid.Column="0" GroupName="teamTwoColors" Tag="Orange" Checked="teamTwoRdo_Checked">
                 Orange
             </RadioButton>
-            <RadioButton x:Name="teamTwoRdoPurple" Grid.Row="5" Grid.Column="0" GroupName="teamTwoColors" Tag="Purple">
+            <RadioButton x:Name="teamTwoRdoPurple" Grid.Row="5" Grid.Column="0" GroupName="teamTwoColors" Tag="Purple" Checked="teamTwoRdo_Checked">
                 Purple
             </RadioButton>
-            <RadioButton x:Name="teamTwoRdoRed" Grid.Row="6" Grid.Column="0" GroupName="teamTwoColors" Tag="Red">
+            <RadioButton x:Name="teamTwoRdoRed" Grid.Row="6" Grid.Column="0" GroupName="teamTwoColors" Tag="Red" Checked="teamTwoRdo_Checked">
                 Red
             </RadioButton>
-            <RadioButton x:Name="teamTwoRdoYellow" Grid.Row="7" Grid.Column="0" GroupName="teamTwoColors" Tag="Yellow">
+            <RadioButton x:Name="teamTwoRdoYellow" Grid.Row="7" Grid.Column="0" GroupName="teamTwoColors" Tag="Yellow" Checked="teamTwoRdo_Checked">
                 Yellow
             </RadioButton>
         </Grid>

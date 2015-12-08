@@ -16,7 +16,9 @@
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="UltimateChess.Windows.App">
       <m2:VisualElements DisplayName="UltimateChess.Windows" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="UltimateChess.Windows" ForegroundText="light" BackgroundColor="#464646">
-        <m2:SplashScreen Image="Assets\SplashScreen.png" />
+        <m2:DefaultTile Square70x70Logo="logo50.png">
+        </m2:DefaultTile>
+        <m2:SplashScreen Image="Assets\SplashScreen.jpg" />
       </m2:VisualElements>
     </Application>
   </Applications>
