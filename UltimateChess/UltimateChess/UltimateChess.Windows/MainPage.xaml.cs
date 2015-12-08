@@ -40,7 +40,6 @@ namespace UltimateChess
 	private string teamOneColor = "White";
         private string teamTwoColor = "Black";
         bool loaded = false;
-        private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
         /// <summary>
@@ -232,11 +231,6 @@ namespace UltimateChess
         }
 
         #region NavigationHelper registration
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            navigationHelper.OnNavigatedTo(e);
-        }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
@@ -1005,7 +999,7 @@ namespace UltimateChess
         {
             if (loaded)
             {
-                navigationHelper.OnNavigatedTo(e);
+                //navigationHelper.OnNavigatedTo(e);
                 var obj = App.Current as App;
                 teamOneColor = obj.passedColors.TeamOne;
                 teamTwoColor = obj.passedColors.TeamTwo;
