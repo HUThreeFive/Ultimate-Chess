@@ -135,7 +135,7 @@ namespace UltimateChess
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            e.PageState["piecesOnGrid"] = "King,6,0|Queen,6,4";
+            e.PageState["piecesOnGrid"] = "red,blue|King,false,6,0,black|Queen,false,6,4,black";
         }
 
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
@@ -149,8 +149,65 @@ namespace UltimateChess
 
         private void LoadSavedPieces(String gridData)
         {
-            //gridData is in this format: "team1Color,team2color|piece,row,col,team|piece,row,col,team|piece,row,col,team|" etc...
-            var piecesArray = gridData.Split('|');
+            //gridData is in this format: "team1Color,team2color|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
+            String[] piecesArray = gridData.Split('|').ToArray();
+            String team1Color = piecesArray[0].Split(',')[0];
+            String team2Color = piecesArray[0].Split(',')[1];
+            piecesArray[0] = "";
+
+            PieceClass piece;
+
+            foreach (String pieceString in piecesArray)
+            {
+                //Read only data sets after team colors entry (slot 0 of array)
+                if (pieceString.Count() > 0)
+                {
+                    String[] splitPieceString = pieceString.Split(',');
+                    piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
+
+                    switch (splitPieceString[0])
+                    {
+                        case "Pawn":
+                            piece.pieceType = Piece.Pawn;
+                            break;
+                        case "Rook":
+                            piece.pieceType = Piece.Rook;
+                            break;
+                        case "Knight":
+                            piece.pieceType = Piece.Knight;
+                            break;
+                        case "Bishop":
+                            piece.pieceType = Piece.Bishop;
+                            break;
+                        case "Queen":
+                            piece.pieceType = Piece.Queen;
+                            break;
+                        case "King":
+                            piece.pieceType = Piece.King;
+                            break;
+                    }
+
+                    if (splitPieceString[1] == "true")
+                    {
+                        piece.hasMoved = true;
+                    }
+                    else
+                    {
+                        piece.hasMoved = false;
+                    }
+
+                    if (splitPieceString[4] == "white")
+                    {
+                        piece.team = Team.White;
+                        piece.position.team = Team.White;
+                    }
+                    else
+                    {
+                        piece.team = Team.Black;
+                        piece.position.team = Team.Black;
+                    }
+                }
+            }
 
         }
 
