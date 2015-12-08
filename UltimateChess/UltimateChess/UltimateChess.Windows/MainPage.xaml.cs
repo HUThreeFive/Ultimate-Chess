@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using UltimateChess.Common;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
@@ -33,10 +34,33 @@ namespace UltimateChess
         public GridModel grid;
         private List<String> capturedWhitePieces = new List<String>();
         private List<String> capturedBlackPieces = new List<String>();
+        private NavigationHelper navigationHelper;
+        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+        /// <summary>
+        /// This can be changed to a strongly typed view model.
+        /// </summary>
+        public ObservableDictionary DefaultViewModel
+        {
+            get { return this.defaultViewModel; }
+        }
+
+        /// <summary>
+        /// NavigationHelper is used on each page to aid in navigation and 
+        /// process lifetime management
+        /// </summary>
+        public NavigationHelper NavigationHelper
+        {
+            get { return this.navigationHelper; }
+        }
 
         public MainPage()
         {
             this.InitializeComponent();
+            this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += navigationHelper_LoadState;
+            this.navigationHelper.SaveState += navigationHelper_SaveState;
+
             grid = new GridModel();
             grid.Start();
             LayoutGridSetUp();
@@ -108,6 +132,41 @@ namespace UltimateChess
             whiteCapturedCanvas.Height = blackCapturedCanvas.Height = canvasBoard.ActualHeight;
             whiteCapturedCanvas.Width = blackCapturedCanvas.Width = squareSize * 2;
         }
+
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            e.PageState["piecesOnGrid"] = "King,6,0|Queen,6,4";
+        }
+
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        {
+            if (e.PageState != null && e.PageState.ContainsKey("piecesOnGrid"))
+            {
+                String savedPiecesString = e.PageState["piecesOnGrid"].ToString();
+                LoadSavedPieces(savedPiecesString);
+            }
+        }
+
+        private void LoadSavedPieces(String gridData)
+        {
+            //gridData is in this format: "team1Color,team2color|piece,row,col,team|piece,row,col,team|piece,row,col,team|" etc...
+            var piecesArray = gridData.Split('|');
+
+        }
+
+        #region NavigationHelper registration
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            navigationHelper.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            navigationHelper.OnNavigatedFrom(e);
+        }
+
+        #endregion
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {

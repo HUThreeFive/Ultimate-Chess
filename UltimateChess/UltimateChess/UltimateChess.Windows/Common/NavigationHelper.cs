@@ -13,17 +13,17 @@ using Windows.UI.Xaml.Navigation;
 namespace UltimateChess.Common
 {
     /// <summary>
-    /// NavigationHelper aids in navigation between pages.  It provides commands used to 
+    /// NavigationManager aids in navigation between pages.  It provides commands used to 
     /// navigate back and forward as well as registers for standard mouse and keyboard 
-    /// shortcuts used to go back and forward in Windows and the hardware back button in
-    /// Windows Phone.  In addition it integrates SuspensionManger to handle process lifetime
-    /// management and state management when navigating between pages.
+    /// shortcuts used to go back and forward.  In addition it integrates SuspensionManger
+    /// to handle process lifetime management and state management when navigating between
+    /// pages.
     /// </summary>
     /// <example>
-    /// To make use of NavigationHelper, follow these two steps or
+    /// To make use of NavigationManager, follow these two steps or
     /// start with a BasicPage or any other Page item template other than BlankPage.
     /// 
-    /// 1) Create an instance of the NavigationHelper somewhere such as in the 
+    /// 1) Create an instance of the NaivgationHelper somewhere such as in the 
     ///     constructor for the page and register a callback for the LoadState and 
     ///     SaveState events.
     /// <code>
@@ -41,7 +41,7 @@ namespace UltimateChess.Common
     ///     { }
     /// </code>
     /// 
-    /// 2) Register the page to call into the NavigationHelper whenever the page participates 
+    /// 2) Register the page to call into the NavigationManager whenever the page participates 
     ///     in navigation by overriding the <see cref="Windows.UI.Xaml.Controls.Page.OnNavigatedTo"/> 
     ///     and <see cref="Windows.UI.Xaml.Controls.Page.OnNavigatedFrom"/> events.
     /// <code>
@@ -74,12 +74,9 @@ namespace UltimateChess.Common
 
             // When this page is part of the visual tree make two changes:
             // 1) Map application view state to visual state for the page
-            // 2) Handle hardware navigation requests
+            // 2) Handle keyboard and mouse navigation requests
             this.Page.Loaded += (sender, e) =>
             {
-#if WINDOWS_PHONE_APP
-                Windows.Phone.UI.Input.HardwareButtons.BackPressed += HardwareButtons_BackPressed;
-#else
                 // Keyboard and mouse navigation only apply when occupying the entire window
                 if (this.Page.ActualHeight == Window.Current.Bounds.Height &&
                     this.Page.ActualWidth == Window.Current.Bounds.Width)
@@ -90,20 +87,15 @@ namespace UltimateChess.Common
                     Window.Current.CoreWindow.PointerPressed +=
                         this.CoreWindow_PointerPressed;
                 }
-#endif
             };
 
             // Undo the same changes when the page is no longer visible
             this.Page.Unloaded += (sender, e) =>
             {
-#if WINDOWS_PHONE_APP
-                Windows.Phone.UI.Input.HardwareButtons.BackPressed -= HardwareButtons_BackPressed;
-#else
                 Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated -=
                     CoreDispatcher_AcceleratorKeyActivated;
                 Window.Current.CoreWindow.PointerPressed -=
                     this.CoreWindow_PointerPressed;
-#endif
             };
         }
 
@@ -200,21 +192,6 @@ namespace UltimateChess.Common
             if (this.Frame != null && this.Frame.CanGoForward) this.Frame.GoForward();
         }
 
-#if WINDOWS_PHONE_APP
-        /// <summary>
-        /// Invoked when the hardware back button is pressed. For Windows Phone only.
-        /// </summary>
-        /// <param name="sender">Instance that triggered the event.</param>
-        /// <param name="e">Event data describing the conditions that led to the event.</param>
-        private void HardwareButtons_BackPressed(object sender, Windows.Phone.UI.Input.BackPressedEventArgs e)
-        {
-            if (this.GoBackCommand.CanExecute(null))
-            {
-                e.Handled = true;
-                this.GoBackCommand.Execute(null);
-            }
-        }
-#else
         /// <summary>
         /// Invoked on every keystroke, including system keys such as Alt key combinations, when
         /// this page is active and occupies the entire window.  Used to detect keyboard navigation
@@ -285,7 +262,6 @@ namespace UltimateChess.Common
                 if (forwardPressed) this.GoForwardCommand.Execute(null);
             }
         }
-#endif
 
         #endregion
 
