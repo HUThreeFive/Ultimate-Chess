@@ -38,6 +38,7 @@ namespace UltimateChess
         private List<String> capturedBlackPieces = new List<String>();
         private string teamOneColor = "White";
         private string teamTwoColor = "Black";
+        bool loaded = false;
 
         public MainPage()
         {
@@ -56,7 +57,7 @@ namespace UltimateChess
 
         async Task SendWithDelay()
         {
-            await Task.Delay(200);
+            await Task.Delay(300);
             CanvasSetUp();
             LoadPieceImages();
             CapturedCanvasSetUp();
@@ -131,6 +132,11 @@ namespace UltimateChess
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
+            newGame();
+        }
+
+        private void newGame()
+        {
             canvasBoard.Children.Clear();
             CanvasSetUp();
             LoadPieceImages();
@@ -196,7 +202,7 @@ namespace UltimateChess
                         MoveImages(null, clickedImage, moves, white, gray, true);
                         AddCapturedImage(p);
                         continueCode = false;
-                        
+
                     }
                 }
 
@@ -287,7 +293,7 @@ namespace UltimateChess
                             canvasBoard.Children.Remove(child);
                             if (tagInfo.pieceType == Piece.King)
                             {
-                                if(tagInfo.team == Team.Black)
+                                if (tagInfo.team == Team.Black)
                                 {
                                     var dialog = new MessageDialog("Congrats! You are the winner!", "White Team Wins!");
                                     await dialog.ShowAsync();
@@ -300,7 +306,7 @@ namespace UltimateChess
                             }
                         }
                     }
-                }  
+                }
             }
         }
 
@@ -317,7 +323,7 @@ namespace UltimateChess
                 if (capturedWhitePieces.Contains(type))
                 {
                     //Increase piece counter
-                    IncrementCapturedCounter(type);
+                    IncrementCapturedCounter(type, piece.team);
                 }
                 else
                 {
@@ -325,11 +331,11 @@ namespace UltimateChess
                     capturedWhitePieces.Add(piece.pieceType.ToString());
                     TextBox textBox = new TextBox();
                     textBox.Text = "x1";
-                    textBox.Tag = Convert.ToString(((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" +  type;
+                    textBox.Tag = Convert.ToString(((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
                     Canvas.SetLeft(textBox, 0);
                     Canvas.SetTop(textBox, (((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)));
                     whiteCapturedCanvas.Children.Add(textBox);
-                    
+
                     Canvas.SetLeft(cappedImage, squareSize);
                     Canvas.SetTop(cappedImage, squareSize * (capturedWhitePieces.Count() - 1));
                     whiteCapturedCanvas.Children.Add(cappedImage);
@@ -337,39 +343,93 @@ namespace UltimateChess
             }
             else
             {
+                String type = piece.pieceType.ToString();
+                if (capturedWhitePieces.Contains(type))
+                {
+                    //Increase piece counter
+                    IncrementCapturedCounter(type, piece.team);
+                }
+                else
+                {
+                    //Add piece to panel
+                    capturedBlackPieces.Add(piece.pieceType.ToString());
+                    TextBox textBox = new TextBox();
+                    textBox.Text = "x1";
+                    textBox.Tag = Convert.ToString(((blackCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
+                    Canvas.SetLeft(textBox, squareSize);
+                    Canvas.SetTop(textBox, (((blackCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)));
+                    blackCapturedCanvas.Children.Add(textBox);
+
+                    Canvas.SetLeft(cappedImage, 0);
+                    Canvas.SetTop(cappedImage, squareSize * (capturedBlackPieces.Count() - 1));
+                    blackCapturedCanvas.Children.Add(cappedImage);
+                }
 
             }
         }
 
-        private void IncrementCapturedCounter (String type)
+        private void IncrementCapturedCounter(String type, Team team)
         {
             TextBox box = new TextBox();
-
-            foreach (UIElement child in whiteCapturedCanvas.Children.ToList())
+            if (team == Team.White)
             {
-                if (box.GetType() == child.GetType())
+                foreach (UIElement child in whiteCapturedCanvas.Children.ToList())
                 {
-                    box = child as TextBox;
-                    String testType = box.Tag as String;
-                    String position = (testType.Split('|')[0]);
-                    int pos = Convert.ToInt32(position);
-                    testType = testType.Split('|')[1];
-
-                    if (testType == type)
+                    if (box.GetType() == child.GetType())
                     {
-                        whiteCapturedCanvas.Children.Remove(child);
-                        testType = box.Text;
-                        testType = testType.Split('x')[1];
-                        int num = Convert.ToInt32(testType);
-                        num++;
-                        testType = "x" + Convert.ToString(num);
+                        box = child as TextBox;
+                        String testType = box.Tag as String;
+                        String position = (testType.Split('|')[0]);
+                        int pos = Convert.ToInt32(position);
+                        testType = testType.Split('|')[1];
 
-                        box.Text = testType;
-                        box.Tag = Convert.ToString(((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
-                        Canvas.SetLeft(box, 0);
-                        Canvas.SetTop(box, (pos));
-                        whiteCapturedCanvas.Children.Add(box);
-                        break;
+                        if (testType == type)
+                        {
+                            whiteCapturedCanvas.Children.Remove(child);
+                            testType = box.Text;
+                            testType = testType.Split('x')[1];
+                            int num = Convert.ToInt32(testType);
+                            num++;
+                            testType = "x" + Convert.ToString(num);
+
+                            box.Text = testType;
+                            box.Tag = Convert.ToString(((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
+                            Canvas.SetLeft(box, 0);
+                            Canvas.SetTop(box, (pos));
+                            whiteCapturedCanvas.Children.Add(box);
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (UIElement child in blackCapturedCanvas.Children.ToList())
+                {
+                    if (box.GetType() == child.GetType())
+                    {
+                        box = child as TextBox;
+                        String testType = box.Tag as String;
+                        String position = (testType.Split('|')[0]);
+                        int pos = Convert.ToInt32(position);
+                        testType = testType.Split('|')[1];
+
+                        if (testType == type)
+                        {
+                            blackCapturedCanvas.Children.Remove(child);
+                            testType = box.Text;
+                            testType = testType.Split('x')[1];
+                            int num = Convert.ToInt32(testType);
+                            num++;
+                            testType = "x" + Convert.ToString(num);
+
+                            box.Text = testType;
+                            box.Tag = Convert.ToString(((blackCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
+                            Canvas.SetLeft(box, squareSize);
+                            Canvas.SetTop(box, (pos));
+                            blackCapturedCanvas.Children.Add(box);
+                            break;
+                        }
                     }
                 }
             }
@@ -552,7 +612,7 @@ namespace UltimateChess
             {
                 switch (imagePiece.pieceType)
                 {
-                    case Piece.Pawn: 
+                    case Piece.Pawn:
                         //Add Black pawn to canvas
                         image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
@@ -778,7 +838,7 @@ namespace UltimateChess
             imagePiece.team = Team.Black;
 
             //Add Black Queen
-            Image blackQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + teamTwoColor +  ".png")), Width = squareSize, Height = squareSize };
+            Image blackQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
             imagePiece.position = new Coordinate() { row = 0, col = 3, team = Team.Black };
             blackQueen.Tag = imagePiece;
             Canvas.SetTop(blackQueen, 0);
@@ -828,13 +888,30 @@ namespace UltimateChess
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (navigationHelper != null)
+            if (loaded)
             {
                 navigationHelper.OnNavigatedTo(e);
                 var obj = App.Current as App;
                 teamOneColor = obj.passedColors.TeamOne;
                 teamTwoColor = obj.passedColors.TeamTwo;
+
+
+                foreach (UIElement child in canvasBoard.Children.ToList())
+                {
+                    Image i = new Image();
+                    if (child.GetType() == i.GetType())
+                    {
+                        i = child as Image;
+                        canvasBoard.Children.Remove(i);
+                        Image newImage = new Image();
+                        PieceClass p = new PieceClass();
+                        p = i.Tag as PieceClass;
+                        newImage.Tag = i.Tag;
+                        canvasBoard.Children.Add(SetImageProperties(newImage, p.position));
+                    }
+                }
             }
+            loaded = true;
 
         }
     }
