@@ -39,4 +39,6 @@ namespace UltimateChess
         //Used only for the list PossibleMoves returns; used for highlighting
         public Team team;
     }
+
+    
 }

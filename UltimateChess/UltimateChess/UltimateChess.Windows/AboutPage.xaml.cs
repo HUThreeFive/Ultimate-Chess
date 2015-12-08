@@ -21,7 +21,7 @@ namespace UltimateChess
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
     /// </summary>
-    public sealed partial class ColorPage : Page
+    public sealed partial class AboutPage : Page
     {
 
         private NavigationHelper navigationHelper;
@@ -44,18 +44,13 @@ namespace UltimateChess
             get { return this.navigationHelper; }
         }
 
-        public string teamOneColor;
-        public string teamTwoColor;
 
-        public ColorPage()
+        public AboutPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += navigationHelper_LoadState;
             this.navigationHelper.SaveState += navigationHelper_SaveState;
-            var obj = App.Current as App;
-            teamOneColor = obj.passedColors.TeamOne;
-            teamTwoColor = obj.passedColors.TeamTwo;
         }
 
         /// <summary>
@@ -99,63 +94,6 @@ namespace UltimateChess
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             navigationHelper.OnNavigatedTo(e);
-
-            var obj = App.Current as App;
-            switch (obj.passedColors.TeamOne)
-            {
-                case "White":
-                    teamOneRdoWhite.IsChecked = true;
-                    break;
-                case "Black":
-                    teamOneRdoBlack.IsChecked = true;
-                    break;
-                case "Green":
-                    teamOneRdoGreen.IsChecked = true;
-                    break;
-                case "Blue":
-                    teamOneRdoBlue.IsChecked = true;
-                    break;
-                case "Yellow":
-                    teamOneRdoYellow.IsChecked = true;
-                    break;
-                case "Purple":
-                    teamOneRdoPurple.IsChecked = true;
-                    break;
-                case "Red":
-                    teamOneRdoRed.IsChecked = true;
-                    break;
-                case "Orange":
-                    teamOneRdoOrange.IsChecked = true;
-                    break;
-            }
-
-            switch (obj.passedColors.TeamTwo)
-            {
-                case "White":
-                    teamTwoRdoWhite.IsChecked = true;
-                    break;
-                case "Black":
-                    teamTwoRdoBlack.IsChecked = true;
-                    break;
-                case "Green":
-                    teamTwoRdoGreen.IsChecked = true;
-                    break;
-                case "Blue":
-                    teamTwoRdoBlue.IsChecked = true;
-                    break;
-                case "Yellow":
-                    teamTwoRdoYellow.IsChecked = true;
-                    break;
-                case "Purple":
-                    teamTwoRdoPurple.IsChecked = true;
-                    break;
-                case "Red":
-                    teamTwoRdoRed.IsChecked = true;
-                    break;
-                case "Orange":
-                    teamTwoRdoOrange.IsChecked = true;
-                    break;
-            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -164,38 +102,5 @@ namespace UltimateChess
         }
 
         #endregion
-
-        private void teamOneRdo_Checked(object sender, RoutedEventArgs e)
-        {
-            if (teamOneLabel != null)
-            {
-            RadioButton r = sender as RadioButton;
-            string[] split = new string[] { "Rdo" };
-            teamOneColor = r.Name.Split(split, StringSplitOptions.RemoveEmptyEntries)[1];
-
-               
-            teamOneLabel.Text = teamOneColor + " Team";
-
-            var obj = App.Current as App;
-            obj.passedColors.TeamOne = teamOneColor;
-            }
-        }
-
-        private void teamTwoRdo_Checked(object sender, RoutedEventArgs e)
-        {
-            if (teamTwoLabel != null)
-            {
-                RadioButton r = sender as RadioButton;
-                string[] split = new string[] { "Rdo" };
-                teamTwoColor = r.Name.Split(split, StringSplitOptions.RemoveEmptyEntries)[1];
-
-
-                teamTwoLabel.Text = teamTwoColor + " Team";
-                var obj = App.Current as App;
-                obj.passedColors.TeamTwo = teamTwoColor;
-            }
-        }
-
-
     }
 }
