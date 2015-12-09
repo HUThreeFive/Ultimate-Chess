@@ -297,7 +297,7 @@ namespace UltimateChess
 
         private void btnColor_Click(object sender, RoutedEventArgs e)
         {
-            this.Frame.Navigate(typeof(ColorPage));
+            //this.Frame.Navigate(typeof(ColorPage));
         }
 
         private void btnHelp_Click(object sender, RoutedEventArgs e)
