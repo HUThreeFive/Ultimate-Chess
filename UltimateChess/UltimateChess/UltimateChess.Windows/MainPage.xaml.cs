@@ -168,10 +168,13 @@ namespace UltimateChess
 
         private void LoadSavedPieces(String gridData)
         {
-            //gridData is in this format: "team1Color,team2color|capturedpiecetype,team,count|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
+            //gridData is in this format: "team1Color,team2color?capturedpiecetype,team,count|capturedpiecetype,team,count?piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
             //"team" will always be black or white (white is on bottom of the main page)
             var obj = App.Current as App;
-            String[] piecesArray = gridData.Split('|').ToArray();
+            String[] dataArray = gridData.Split('?');
+            String[] piecesArray = dataArray[2].Split('|');
+            //dataArray[1] is the string array of captured pieces
+
             //obj.passedColors.TeamOne = piecesArray[0].Split(',')[0];
             //obj.passedColors.TeamTwo = piecesArray[0].Split(',')[1];
             piecesArray[0] = "";
@@ -187,6 +190,7 @@ namespace UltimateChess
                     String[] splitPieceString = pieceString.Split(',');
                     PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
 
+                    #region Creating the piece from the string...
                     switch (splitPieceString[0])
                     {
                         case "Pawn":
@@ -228,6 +232,7 @@ namespace UltimateChess
                         piece.team = Team.Black;
                         piece.position.team = Team.Black;
                     }
+                    #endregion
 
                     Image savedPieceImage = new Image();
                     savedPieceImage.Tag = piece;
