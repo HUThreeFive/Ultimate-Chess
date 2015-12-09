@@ -37,7 +37,7 @@ namespace UltimateChess
         public GridModel grid;
         private List<String> capturedWhitePieces = new List<String>();
         private List<String> capturedBlackPieces = new List<String>();
-	private string teamOneColor = "White";
+	    private string teamOneColor = "White";
         private string teamTwoColor = "Black";
         bool loaded = false;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
@@ -77,7 +77,7 @@ namespace UltimateChess
             SendWithDelay();
         }
 
-        async Task SendWithDelay()
+        private async Task SendWithDelay()
         {
             await Task.Delay(300);
             CanvasSetUp();
@@ -169,9 +169,10 @@ namespace UltimateChess
         private void LoadSavedPieces(String gridData)
         {
             //gridData is in this format: "team1Color,team2color|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
+            var obj = App.Current as App;
             String[] piecesArray = gridData.Split('|').ToArray();
-            String team1Color = piecesArray[0].Split(',')[0];
-            String team2Color = piecesArray[0].Split(',')[1];
+            obj.passedColors.TeamOne = piecesArray[0].Split(',')[0];
+            obj.passedColors.TeamTwo = piecesArray[0].Split(',')[1];
             piecesArray[0] = "";
 
             PieceClass piece;
@@ -231,6 +232,36 @@ namespace UltimateChess
         }
 
         #region NavigationHelper registration
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            navigationHelper.OnNavigatedTo(e);
+
+            if (loaded)
+            {
+                var obj = App.Current as App;
+                teamOneColor = obj.passedColors.TeamOne;
+                teamTwoColor = obj.passedColors.TeamTwo;
+
+
+                foreach (UIElement child in canvasBoard.Children.ToList())
+                {
+                    Image i = new Image();
+                    if (child.GetType() == i.GetType())
+                    {
+                        i = child as Image;
+                        canvasBoard.Children.Remove(i);
+                        Image newImage = new Image();
+                        PieceClass p = new PieceClass();
+                        p = i.Tag as PieceClass;
+                        newImage.Tag = i.Tag;
+                        canvasBoard.Children.Add(SetImageProperties(newImage, p.position));
+                    }
+                }
+            }
+            loaded = true;
+
+        }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
@@ -453,7 +484,7 @@ namespace UltimateChess
             else
             {
                 String type = piece.pieceType.ToString();
-                if (capturedWhitePieces.Contains(type))
+                if (capturedBlackPieces.Contains(type))
                 {
                     //Increase piece counter
                     IncrementCapturedCounter(type, piece.team);
@@ -995,33 +1026,5 @@ namespace UltimateChess
             canvasBoard.Children.Add(whiteKing);
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            if (loaded)
-            {
-                //navigationHelper.OnNavigatedTo(e);
-                var obj = App.Current as App;
-                teamOneColor = obj.passedColors.TeamOne;
-                teamTwoColor = obj.passedColors.TeamTwo;
-
-
-                foreach (UIElement child in canvasBoard.Children.ToList())
-                {
-                    Image i = new Image();
-                    if (child.GetType() == i.GetType())
-                    {
-                        i = child as Image;
-                        canvasBoard.Children.Remove(i);
-                        Image newImage = new Image();
-                        PieceClass p = new PieceClass();
-                        p = i.Tag as PieceClass;
-                        newImage.Tag = i.Tag;
-                        canvasBoard.Children.Add(SetImageProperties(newImage, p.position));
-                    }
-                }
-            }
-            loaded = true;
-
-        }
     }
 }
