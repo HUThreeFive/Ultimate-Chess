@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using UltimateChess.Common;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
@@ -36,15 +37,36 @@ namespace UltimateChess
         public GridModel grid;
         private List<String> capturedWhitePieces = new List<String>();
         private List<String> capturedBlackPieces = new List<String>();
-        private string teamOneColor = "White";
+	private string teamOneColor = "White";
         private string teamTwoColor = "Black";
         bool loaded = false;
+        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+        /// <summary>
+        /// This can be changed to a strongly typed view model.
+        /// </summary>
+        public ObservableDictionary DefaultViewModel
+        {
+            get { return this.defaultViewModel; }
+        }
+
+        /// <summary>
+        /// NavigationHelper is used on each page to aid in navigation and 
+        /// process lifetime management
+        /// </summary>
+        public NavigationHelper NavigationHelper
+        {
+            get { return this.navigationHelper; }
+        }
 
         public MainPage()
         {
             this.InitializeComponent();
             this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += navigationHelper_LoadState;
+            this.navigationHelper.SaveState += navigationHelper_SaveState;
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
+
             grid = new GridModel();
             grid.Start();
             LayoutGridSetUp();
@@ -129,6 +151,93 @@ namespace UltimateChess
             whiteCapturedCanvas.Height = blackCapturedCanvas.Height = canvasBoard.ActualHeight;
             whiteCapturedCanvas.Width = blackCapturedCanvas.Width = squareSize * 2;
         }
+
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
+        {
+            e.PageState["piecesOnGrid"] = "red,blue|King,false,6,0,black|Queen,false,6,4,black";
+        }
+
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
+        {
+            if (e.PageState != null && e.PageState.ContainsKey("piecesOnGrid"))
+            {
+                String savedPiecesString = e.PageState["piecesOnGrid"].ToString();
+                LoadSavedPieces(savedPiecesString);
+            }
+        }
+
+        private void LoadSavedPieces(String gridData)
+        {
+            //gridData is in this format: "team1Color,team2color|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
+            String[] piecesArray = gridData.Split('|').ToArray();
+            String team1Color = piecesArray[0].Split(',')[0];
+            String team2Color = piecesArray[0].Split(',')[1];
+            piecesArray[0] = "";
+
+            PieceClass piece;
+
+            foreach (String pieceString in piecesArray)
+            {
+                //Read only data sets after team colors entry (slot 0 of array)
+                if (pieceString.Count() > 0)
+                {
+                    String[] splitPieceString = pieceString.Split(',');
+                    piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
+
+                    switch (splitPieceString[0])
+                    {
+                        case "Pawn":
+                            piece.pieceType = Piece.Pawn;
+                            break;
+                        case "Rook":
+                            piece.pieceType = Piece.Rook;
+                            break;
+                        case "Knight":
+                            piece.pieceType = Piece.Knight;
+                            break;
+                        case "Bishop":
+                            piece.pieceType = Piece.Bishop;
+                            break;
+                        case "Queen":
+                            piece.pieceType = Piece.Queen;
+                            break;
+                        case "King":
+                            piece.pieceType = Piece.King;
+                            break;
+                    }
+
+                    if (splitPieceString[1] == "true")
+                    {
+                        piece.hasMoved = true;
+                    }
+                    else
+                    {
+                        piece.hasMoved = false;
+                    }
+
+                    if (splitPieceString[4] == "white")
+                    {
+                        piece.team = Team.White;
+                        piece.position.team = Team.White;
+                    }
+                    else
+                    {
+                        piece.team = Team.Black;
+                        piece.position.team = Team.Black;
+                    }
+                }
+            }
+
+        }
+
+        #region NavigationHelper registration
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            navigationHelper.OnNavigatedFrom(e);
+        }
+
+        #endregion
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
@@ -890,7 +999,7 @@ namespace UltimateChess
         {
             if (loaded)
             {
-                navigationHelper.OnNavigatedTo(e);
+                //navigationHelper.OnNavigatedTo(e);
                 var obj = App.Current as App;
                 teamOneColor = obj.passedColors.TeamOne;
                 teamTwoColor = obj.passedColors.TeamTwo;
