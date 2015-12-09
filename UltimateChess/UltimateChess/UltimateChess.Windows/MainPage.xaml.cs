@@ -37,7 +37,7 @@ namespace UltimateChess
         public GridModel grid;
         private List<String> capturedWhitePieces = new List<String>();
         private List<String> capturedBlackPieces = new List<String>();
-	    private string teamOneColor = "White";
+        private string teamOneColor = "White";
         private string teamTwoColor = "Black";
         bool loaded = false;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
@@ -155,6 +155,7 @@ namespace UltimateChess
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             e.PageState["piecesOnGrid"] = "orange,black|King,false,6,0,black|Queen,false,6,4,black";
+            //e.PageState["piecesOnGrid"] = SavePiecesState();
         }
 
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
@@ -173,6 +174,12 @@ namespace UltimateChess
             }
         }
 
+        private String SavePiecesState()
+        {
+            //TODO: remove this generic statement
+            return null;
+        }
+
         private void LoadSavedPieces(String gridData)
         {
             //gridData is in this format: "team1Color,team2color?capturedpiecetype,team|capturedpiecetype,team?piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
@@ -185,6 +192,7 @@ namespace UltimateChess
 
             //obj.passedColors.TeamOne = dataArray[0].Split(',')[0];
             //obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
+
 
             //canvasBoard.Children.Clear();
             //CanvasSetUp();
@@ -233,6 +241,7 @@ namespace UltimateChess
 
             foreach (String pieceString in piecesArray)
             {
+            
                     String[] splitPieceString = pieceString.Split(',');
                     PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
 
@@ -284,9 +293,12 @@ namespace UltimateChess
                     savedPieceImage.Tag = piece;
                     savedPieceImage = SetImageProperties(savedPieceImage, piece.position);
                     //canvasBoard.Children.Add(savedPieceImage);
+                    //Add piece to grid model
+                    grid.AddSavedPiece(piece);
+                
             }
 
-
+            grid.SetEmptyGridCellsBlank();
         }
 
         #region NavigationHelper registration
