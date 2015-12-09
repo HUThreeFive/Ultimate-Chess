@@ -251,8 +251,8 @@ namespace UltimateChess
                 obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
             }
 
-            //canvasBoard.Children.Clear();
-            //CanvasSetUp();
+            canvasBoard.Children.Clear();
+            CanvasSetUp();
 
             foreach (String captured in capturedPiecesArray)
             {
@@ -329,7 +329,7 @@ namespace UltimateChess
                             break;
                     }
 
-                    if (splitPieceString[1] == "true")
+                    if (splitPieceString[1] == "True")
                     {
                         piece.hasMoved = true;
                     }
@@ -338,7 +338,7 @@ namespace UltimateChess
                         piece.hasMoved = false;
                     }
 
-                    if (splitPieceString[4] == "white")
+                    if (splitPieceString[4] == "White")
                     {
                         piece.team = Team.White;
                         piece.position.team = Team.White;
@@ -356,6 +356,8 @@ namespace UltimateChess
                     canvasBoard.Children.Add(savedPieceImage);
                     //Add piece to grid model
                     grid.AddSavedPiece(piece);
+                    piece = null;
+                    savedPieceImage = null;
                 }                
             }
 
@@ -455,6 +457,7 @@ namespace UltimateChess
                     moves = new List<Coordinate>(grid.PossibleMoves(p.position, p.position.team));
                     firstCoordinate = new Coordinate { row = p.position.row, col = p.position.col, team = p.team };
                     firstClick = false;
+                    continueCode = true;
                 }
                 else
                 {
@@ -490,7 +493,7 @@ namespace UltimateChess
 
                     if (moves.Exists(x => (x.row == coord.row && x.col == coord.col)))
                     {
-                        grid.DetermineAction(firstCoordinate, new Coordinate() { row = coord.row, col = coord.col }, firstCoordinate.team);
+                        grid.DetermineAction(firstCoordinate, coord, firstCoordinate.team);
                         MoveImages(rect, new Image(), moves, white, gray, false);
                     }
                     else
@@ -824,6 +827,12 @@ namespace UltimateChess
                         //Add White pawn to canvas
                         image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
+
+                        if (!imagePiece.hasMoved)
+                        {
+                            imagePiece.hasMoved = true;
+                        }
+
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
                         Canvas.SetLeft(image, coord.col * squareSize);
@@ -884,6 +893,12 @@ namespace UltimateChess
                         //Add Black pawn to canvas
                         image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
+
+                        if (!imagePiece.hasMoved)
+                        {
+                            imagePiece.hasMoved = true;
+                        }
+
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
                         Canvas.SetLeft(image, coord.col * squareSize);

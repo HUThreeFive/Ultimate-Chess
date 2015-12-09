@@ -607,7 +607,7 @@ namespace UltimateChess
             if (grid[destination.row, destination.col].team == Team.Blank)
             {
                 Move(playerPiece, destination, player);
-                if (!grid[playerPiece.row, playerPiece.col].hasMoved)
+                if (!grid[destination.row, destination.col].hasMoved)
                 {
                     grid[destination.row, destination.col].hasMoved = true;
                 }
@@ -646,6 +646,7 @@ namespace UltimateChess
                 whiteActive.RemoveAt(index);
                 piece.position = destination;
                 whiteActive.Add(piece);
+                piece = null;
             }
             else
             {
@@ -654,11 +655,13 @@ namespace UltimateChess
                 blackActive.RemoveAt(index);
                 piece.position = destination;
                 blackActive.Add(piece);
+                piece = null;
             }
 
             grid[destination.row, destination.col].position = destination;
 
             grid[source.row, source.col] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = source };
+            
         }
 
         private void CheckForCheck(Team player)
