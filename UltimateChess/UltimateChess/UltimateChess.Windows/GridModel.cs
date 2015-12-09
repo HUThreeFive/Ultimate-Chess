@@ -23,6 +23,7 @@ namespace UltimateChess
             whiteCaptured.Clear();
             whiteActive.Clear();
             blackActive.Clear();
+            InitializeGrid();
         }
 
         public void StartIfSaveData()

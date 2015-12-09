@@ -31,6 +31,7 @@ namespace UltimateChess
     public sealed partial class MainPage : Page
     {
         private NavigationHelper navigationHelper;
+        private ObservableDictionary defaultViewModel = new ObservableDictionary();
         public bool firstClick = true;
         public Coordinate firstCoordinate;
         private int squareSize;
@@ -39,8 +40,8 @@ namespace UltimateChess
         private List<String> capturedBlackPieces = new List<String>();
         private string teamOneColor = "White";
         private string teamTwoColor = "Black";
-        bool loaded = false;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        bool loadedFromSaveState = false;
+        String savedPiecesString = "";
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -67,14 +68,14 @@ namespace UltimateChess
             this.navigationHelper.SaveState += navigationHelper_SaveState;
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
-            //grid = new GridModel();
+            grid = new GridModel();
             //grid.Start();
             LayoutGridSetUp();
             var obj = App.Current as App;
             teamOneColor = obj.passedColors.TeamOne;
             teamTwoColor = obj.passedColors.TeamTwo;
 
-            SendWithDelay();
+            //SendWithDelay();
         }
 
         private async Task SendWithDelay()
@@ -160,17 +161,10 @@ namespace UltimateChess
 
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            grid = new GridModel();
-
             if (e.PageState != null && e.PageState.ContainsKey("piecesOnGrid"))
             {
-                grid.StartIfSaveData();
-                String savedPiecesString = e.PageState["piecesOnGrid"].ToString();
-                LoadSavedPieces(savedPiecesString);
-            }
-            else
-            {
-                grid.Start();
+                loadedFromSaveState = true;
+                savedPiecesString = e.PageState["piecesOnGrid"].ToString();
             }
         }
 
@@ -250,10 +244,14 @@ namespace UltimateChess
             String[] capturedPiecesArray = dataArray[1].Split('|');
             //dataArray[1] is the string array of captured pieces
 
-            obj.passedColors.TeamOne = dataArray[0].Split(',')[0];
-            obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
-            canvasBoard.Children.Clear();
-            CanvasSetUp();
+            if (!loadedFromSaveState)
+            {
+                obj.passedColors.TeamOne = dataArray[0].Split(',')[0];
+                obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
+            }
+
+            //canvasBoard.Children.Clear();
+            //CanvasSetUp();
 
             foreach (String captured in capturedPiecesArray)
             {
@@ -285,15 +283,13 @@ namespace UltimateChess
                             break;
                     }
 
-                    if (splitCaptured[4] == "white")
+                    if (splitCaptured[1] == "white")
                     {
                         piece.team = Team.White;
-                        piece.position.team = Team.White;
                     }
                     else
                     {
                         piece.team = Team.Black;
-                        piece.position.team = Team.Black;
                     }
                     #endregion
 
@@ -371,30 +367,31 @@ namespace UltimateChess
         {
             navigationHelper.OnNavigatedTo(e);
 
-            if (loaded)
-            {
-                var obj = App.Current as App;
-                teamOneColor = obj.passedColors.TeamOne;
-                teamTwoColor = obj.passedColors.TeamTwo;
+            //if (loaded)
+            //{
+            //    var obj = App.Current as App;
+            //    teamOneColor = obj.passedColors.TeamOne;
+            //    teamTwoColor = obj.passedColors.TeamTwo;
 
-
-                foreach (UIElement child in canvasBoard.Children.ToList())
-                {
-                    Image i = new Image();
-                    if (child.GetType() == i.GetType())
-                    {
-                        i = child as Image;
-                        canvasBoard.Children.Remove(i);
-                        Image newImage = new Image();
-                        PieceClass p = new PieceClass();
-                        p = i.Tag as PieceClass;
-                        newImage.Tag = i.Tag;
-                        canvasBoard.Children.Add(SetImageProperties(newImage, p.position));
-                    }
-                }
-            }
-            loaded = true;
-
+            //    foreach (UIElement child in canvasBoard.Children.ToList())
+            //    {
+            //        Image i = new Image();
+            //        if (child.GetType() == i.GetType())
+            //        {
+            //            i = child as Image;
+            //            canvasBoard.Children.Remove(i);
+            //            Image newImage = new Image();
+            //            PieceClass p = new PieceClass();
+            //            p = i.Tag as PieceClass;
+            //            newImage.Tag = i.Tag;
+            //            canvasBoard.Children.Add(SetImageProperties(newImage, p.position));
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    loaded = true;
+            //}
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -1154,6 +1151,23 @@ namespace UltimateChess
             Canvas.SetLeft(whiteKing, 4 * squareSize);
             Canvas.SetZIndex(whiteKing, 1);
             canvasBoard.Children.Add(whiteKing);
+        }
+
+        private void page_Loaded(object sender, RoutedEventArgs e)
+        {
+            CanvasSetUp();
+            CapturedCanvasSetUp();
+
+            if (loadedFromSaveState)
+            {
+                grid.StartIfSaveData();
+                LoadSavedPieces(savedPiecesString);
+            }
+            else
+            {
+                LoadPieceImages();
+                grid.Start();
+            }
         }
     }
 }
