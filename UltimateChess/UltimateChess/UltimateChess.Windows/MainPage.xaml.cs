@@ -155,6 +155,7 @@ namespace UltimateChess
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             e.PageState["piecesOnGrid"] = "orange,black|King,false,6,0,black|Queen,false,6,4,black";
+            //e.PageState["piecesOnGrid"] = SavePiecesState();
         }
 
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
@@ -166,17 +167,23 @@ namespace UltimateChess
             }
         }
 
+        private String SavePiecesState()
+        {
+            //TODO: remove this generic statement
+            return null;
+        }
+
         private void LoadSavedPieces(String gridData)
         {
-            //gridData is in this format: "team1Color,team2color?capturedpiecetype,team,count|capturedpiecetype,team,count?piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
+            //gridData is in this format: "team1Color,team2color?capturedpiecetype,team|capturedpiecetype,team?piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
             //"team" will always be black or white (white is on bottom of the main page)
             var obj = App.Current as App;
             String[] dataArray = gridData.Split('?');
             String[] piecesArray = dataArray[2].Split('|');
             //dataArray[1] is the string array of captured pieces
 
-            //obj.passedColors.TeamOne = piecesArray[0].Split(',')[0];
-            //obj.passedColors.TeamTwo = piecesArray[0].Split(',')[1];
+            //obj.passedColors.TeamOne = dataArray[0].Split(',')[0];
+            //obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
             piecesArray[0] = "";
 
             //canvasBoard.Children.Clear();
@@ -238,8 +245,13 @@ namespace UltimateChess
                     savedPieceImage.Tag = piece;
                     savedPieceImage = SetImageProperties(savedPieceImage, piece.position);
                     //canvasBoard.Children.Add(savedPieceImage);
+
+                    //Add piece to grid model
+
                 }
             }
+
+            grid.SetEmptyGridCellsBlank();
         }
 
         #region NavigationHelper registration

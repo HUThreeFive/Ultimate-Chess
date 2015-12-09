@@ -19,9 +19,9 @@ namespace UltimateChess
 
         public void Start()
         {
-            InitializeGrid();
             blackCaptured.Clear();
             whiteCaptured.Clear();
+            InitializeGrid();
         }
 
         /// <summary>
@@ -929,6 +929,35 @@ namespace UltimateChess
             else
             {
                 return false;
+            }
+        }
+
+        //If a piece was saved in the saved data in controller, add the piece at its coordinate in the grid
+        public void AddSavedPiece(PieceClass savedPiece)
+        {
+            grid[savedPiece.position.row, savedPiece.position.col] = savedPiece;
+
+            if (savedPiece.team == Team.White)
+            {
+                whiteActive.Add(savedPiece);
+            }
+            else
+            {
+                blackActive.Add(savedPiece);
+            }
+        }
+
+        public void SetEmptyGridCellsBlank()
+        {
+            for (int rowCount = 0; rowCount < 8; rowCount++)
+            {
+                for (int colCount = 0; colCount < 8; colCount++)
+                {
+                    if (grid[rowCount,colCount] == null)
+                    {
+                        grid[rowCount, colCount] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = new Coordinate { row = rowCount, col = colCount, team = Team.Blank } };
+                    }
+                }
             }
         }
 
