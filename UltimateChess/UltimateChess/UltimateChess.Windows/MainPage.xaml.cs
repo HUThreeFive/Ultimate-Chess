@@ -67,8 +67,8 @@ namespace UltimateChess
             this.navigationHelper.SaveState += navigationHelper_SaveState;
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
-            grid = new GridModel();
-            grid.Start();
+            //grid = new GridModel();
+            //grid.Start();
             LayoutGridSetUp();
             var obj = App.Current as App;
             teamOneColor = obj.passedColors.TeamOne;
@@ -159,34 +159,80 @@ namespace UltimateChess
 
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
+            grid = new GridModel();
+
             if (e.PageState != null && e.PageState.ContainsKey("piecesOnGrid"))
             {
+                grid.StartIfSaveData();
                 String savedPiecesString = e.PageState["piecesOnGrid"].ToString();
                 LoadSavedPieces(savedPiecesString);
+            }
+            else
+            {
+                grid.Start();
             }
         }
 
         private void LoadSavedPieces(String gridData)
         {
-            //gridData is in this format: "team1Color,team2color?capturedpiecetype,team,count|capturedpiecetype,team,count?piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
+            //gridData is in this format: "team1Color,team2color?capturedpiecetype,team|capturedpiecetype,team?piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
             //"team" will always be black or white (white is on bottom of the main page)
             var obj = App.Current as App;
             String[] dataArray = gridData.Split('?');
             String[] piecesArray = dataArray[2].Split('|');
+            String[] capturedPiecesArray = dataArray[1].Split('|');
             //dataArray[1] is the string array of captured pieces
 
-            //obj.passedColors.TeamOne = piecesArray[0].Split(',')[0];
-            //obj.passedColors.TeamTwo = piecesArray[0].Split(',')[1];
-            piecesArray[0] = "";
+            //obj.passedColors.TeamOne = dataArray[0].Split(',')[0];
+            //obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
 
             //canvasBoard.Children.Clear();
             //CanvasSetUp();
 
+            foreach (String captured in capturedPiecesArray)
+            {
+                String[] splitCaptured = captured.Split(',');
+                PieceClass piece = new PieceClass();
+
+                switch (splitCaptured[0])
+                {
+                    case "Pawn":
+                        piece.pieceType = Piece.Pawn;
+                        break;
+                    case "Rook":
+                        piece.pieceType = Piece.Rook;
+                        break;
+                    case "Knight":
+                        piece.pieceType = Piece.Knight;
+                        break;
+                    case "Bishop":
+                        piece.pieceType = Piece.Bishop;
+                        break;
+                    case "Queen":
+                        piece.pieceType = Piece.Queen;
+                        break;
+                    case "King":
+                        piece.pieceType = Piece.King;
+                        break;
+                }
+
+                if (splitCaptured[4] == "white")
+                {
+                    piece.team = Team.White;
+                    piece.position.team = Team.White;
+                }
+                else
+                {
+                    piece.team = Team.Black;
+                    piece.position.team = Team.Black;
+                }
+
+                AddCapturedImage(piece);
+                grid.UpdateActiveListFromSaveState(piece);
+            }
+
             foreach (String pieceString in piecesArray)
             {
-                //Read only data sets after team colors entry (slot 0 of array)
-                if (pieceString.Count() > 0)
-                {
                     String[] splitPieceString = pieceString.Split(',');
                     PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
 
@@ -238,8 +284,9 @@ namespace UltimateChess
                     savedPieceImage.Tag = piece;
                     savedPieceImage = SetImageProperties(savedPieceImage, piece.position);
                     //canvasBoard.Children.Add(savedPieceImage);
-                }
             }
+
+
         }
 
         #region NavigationHelper registration

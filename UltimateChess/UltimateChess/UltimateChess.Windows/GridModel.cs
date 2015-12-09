@@ -22,6 +22,25 @@ namespace UltimateChess
             InitializeGrid();
             blackCaptured.Clear();
             whiteCaptured.Clear();
+            whiteActive.Clear();
+            blackActive.Clear();
+        }
+
+        public void StartIfSaveData()
+        {
+            if (grid != null)
+            {
+                Array.Clear(grid, 0, grid.Length);
+            }
+            else
+            {
+                grid = new PieceClass[NUM_CELLS, NUM_CELLS];
+            }
+
+            blackCaptured.Clear();
+            whiteCaptured.Clear();
+            whiteActive.Clear();
+            blackActive.Clear();
         }
 
         /// <summary>
@@ -929,6 +948,18 @@ namespace UltimateChess
             else
             {
                 return false;
+            }
+        }
+
+        public void UpdateActiveListFromSaveState(PieceClass piece)
+        {
+            if (piece.team == Team.White)
+            {
+                whiteActive.Add(piece);
+            }
+            else
+            {
+                blackActive.Add(piece);
             }
         }
 
