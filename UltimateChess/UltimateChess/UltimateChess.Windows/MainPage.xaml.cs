@@ -177,6 +177,29 @@ namespace UltimateChess
         private String SavePiecesState()
         {
             //TODO: remove this generic statement
+            String saveState = "";
+            var obj = App.Current as App;
+            saveState += obj.passedColors.TeamOne + "," + obj.passedColors.TeamTwo + "?";
+
+            TextBox box = new TextBox();
+
+            foreach (UIElement child in whiteCapturedCanvas.Children.ToList())
+            {
+                if (box.GetType() == child.GetType())
+                {
+                    box = child as TextBox;
+                    String posType = box.Tag as String;
+                    String type = posType.Split('|')[1];
+                    String count = "";
+
+                    String boxText = box.Text;
+                    testType = testType.Split('x')[1];
+                    int num = Convert.ToInt32(testType);
+                    num++;
+                    testType = "x" + Convert.ToString(num);
+                }
+            }
+
             return null;
         }
 
@@ -241,61 +264,61 @@ namespace UltimateChess
 
             foreach (String pieceString in piecesArray)
             {
-            
-                    String[] splitPieceString = pieceString.Split(',');
-                    PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
 
-                    #region Creating the piece from the string...
-                    switch (splitPieceString[0])
-                    {
-                        case "Pawn":
-                            piece.pieceType = Piece.Pawn;
-                            break;
-                        case "Rook":
-                            piece.pieceType = Piece.Rook;
-                            break;
-                        case "Knight":
-                            piece.pieceType = Piece.Knight;
-                            break;
-                        case "Bishop":
-                            piece.pieceType = Piece.Bishop;
-                            break;
-                        case "Queen":
-                            piece.pieceType = Piece.Queen;
-                            break;
-                        case "King":
-                            piece.pieceType = Piece.King;
-                            break;
-                    }
+                String[] splitPieceString = pieceString.Split(',');
+                PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
 
-                    if (splitPieceString[1] == "true")
-                    {
-                        piece.hasMoved = true;
-                    }
-                    else
-                    {
-                        piece.hasMoved = false;
-                    }
+                #region Creating the piece from the string...
+                switch (splitPieceString[0])
+                {
+                    case "Pawn":
+                        piece.pieceType = Piece.Pawn;
+                        break;
+                    case "Rook":
+                        piece.pieceType = Piece.Rook;
+                        break;
+                    case "Knight":
+                        piece.pieceType = Piece.Knight;
+                        break;
+                    case "Bishop":
+                        piece.pieceType = Piece.Bishop;
+                        break;
+                    case "Queen":
+                        piece.pieceType = Piece.Queen;
+                        break;
+                    case "King":
+                        piece.pieceType = Piece.King;
+                        break;
+                }
 
-                    if (splitPieceString[4] == "white")
-                    {
-                        piece.team = Team.White;
-                        piece.position.team = Team.White;
-                    }
-                    else
-                    {
-                        piece.team = Team.Black;
-                        piece.position.team = Team.Black;
-                    }
-                    #endregion
+                if (splitPieceString[1] == "true")
+                {
+                    piece.hasMoved = true;
+                }
+                else
+                {
+                    piece.hasMoved = false;
+                }
 
-                    Image savedPieceImage = new Image();
-                    savedPieceImage.Tag = piece;
-                    savedPieceImage = SetImageProperties(savedPieceImage, piece.position);
-                    //canvasBoard.Children.Add(savedPieceImage);
-                    //Add piece to grid model
-                    grid.AddSavedPiece(piece);
-                
+                if (splitPieceString[4] == "white")
+                {
+                    piece.team = Team.White;
+                    piece.position.team = Team.White;
+                }
+                else
+                {
+                    piece.team = Team.Black;
+                    piece.position.team = Team.Black;
+                }
+                #endregion
+
+                Image savedPieceImage = new Image();
+                savedPieceImage.Tag = piece;
+                savedPieceImage = SetImageProperties(savedPieceImage, piece.position);
+                //canvasBoard.Children.Add(savedPieceImage);
+                //Add piece to grid model
+                grid.AddSavedPiece(piece);
+
             }
 
             grid.SetEmptyGridCellsBlank();
