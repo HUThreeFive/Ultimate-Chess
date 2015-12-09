@@ -190,15 +190,38 @@ namespace UltimateChess
                     box = child as TextBox;
                     String posType = box.Tag as String;
                     String type = posType.Split('|')[1];
-                    String count = "";
 
                     String boxText = box.Text;
-                    testType = testType.Split('x')[1];
-                    int num = Convert.ToInt32(testType);
-                    num++;
-                    testType = "x" + Convert.ToString(num);
+                    String count = boxText.Split('x')[1];
+                    int num = Convert.ToInt32(count);
+                    
+                    for(int i = 0; i < num; i++)
+                    {
+                        saveState += type + ",White|";
+                    }
                 }
             }
+
+            foreach (UIElement child in blackCapturedCanvas.Children.ToList())
+            {
+                if (box.GetType() == child.GetType())
+                {
+                    box = child as TextBox;
+                    String posType = box.Tag as String;
+                    String type = posType.Split('|')[1];
+
+                    String boxText = box.Text;
+                    String count = boxText.Split('x')[1];
+                    int num = Convert.ToInt32(count);
+
+                    for (int i = 0; i < num; i++)
+                    {
+                        saveState += type + ",Black|";
+                    }
+                }
+            }
+            
+            saveState += "?";
 
             return null;
         }
