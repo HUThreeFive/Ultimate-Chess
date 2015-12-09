@@ -31,16 +31,18 @@ namespace UltimateChess
     public sealed partial class MainPage : Page
     {
         private NavigationHelper navigationHelper;
+        private ObservableDictionary defaultViewModel = new ObservableDictionary();
         public bool firstClick = true;
         public Coordinate firstCoordinate;
         private int squareSize;
         public GridModel grid;
         private List<String> capturedWhitePieces = new List<String>();
         private List<String> capturedBlackPieces = new List<String>();
-	private string teamOneColor = "White";
+        private string teamOneColor = "White";
         private string teamTwoColor = "Black";
-        bool loaded = false;
-        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+        bool loadedFromSaveState = false;
+        public App obj = App.Current as App;
+        String savedPiecesString = "";
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -68,16 +70,16 @@ namespace UltimateChess
             this.NavigationCacheMode = NavigationCacheMode.Enabled;
 
             grid = new GridModel();
-            grid.Start();
+            //grid.Start();
             LayoutGridSetUp();
             var obj = App.Current as App;
             teamOneColor = obj.passedColors.TeamOne;
             teamTwoColor = obj.passedColors.TeamTwo;
 
-            SendWithDelay();
+            //SendWithDelay();
         }
 
-        async Task SendWithDelay()
+        private async Task SendWithDelay()
         {
             await Task.Delay(300);
             CanvasSetUp();
@@ -154,36 +156,157 @@ namespace UltimateChess
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            e.PageState["piecesOnGrid"] = "red,blue|King,false,6,0,black|Queen,false,6,4,black";
+            //e.PageState["piecesOnGrid"] = "orange,black|King,false,6,0,black|Queen,false,6,4,black";
+            e.PageState["piecesOnGrid"] = SavePiecesState();
         }
 
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             if (e.PageState != null && e.PageState.ContainsKey("piecesOnGrid"))
             {
-                String savedPiecesString = e.PageState["piecesOnGrid"].ToString();
-                LoadSavedPieces(savedPiecesString);
+                loadedFromSaveState = true;
+                savedPiecesString = e.PageState["piecesOnGrid"].ToString();
             }
+        }
+
+        private String SavePiecesState()
+        {
+            //TODO: remove this generic statement
+            String saveState = "";
+            var obj = App.Current as App;
+            saveState += obj.passedColors.TeamOne + "," + obj.passedColors.TeamTwo + "?";
+
+            TextBox box = new TextBox();
+
+            foreach (UIElement child in whiteCapturedCanvas.Children.ToList())
+            {
+                if (box.GetType() == child.GetType())
+                {
+                    box = child as TextBox;
+                    String posType = box.Tag as String;
+                    String type = posType.Split('|')[1];
+
+                    String boxText = box.Text;
+                    String count = boxText.Split('x')[1];
+                    int num = Convert.ToInt32(count);
+                    
+                    for(int i = 0; i < num; i++)
+                    {
+                        saveState += type + ",White|";
+                    }
+                }
+            }
+
+            foreach (UIElement child in blackCapturedCanvas.Children.ToList())
+            {
+                if (box.GetType() == child.GetType())
+                {
+                    box = child as TextBox;
+                    String posType = box.Tag as String;
+                    String type = posType.Split('|')[1];
+
+                    String boxText = box.Text;
+                    String count = boxText.Split('x')[1];
+                    int num = Convert.ToInt32(count);
+
+                    for (int i = 0; i < num; i++)
+                    {
+                        saveState += type + ",Black|";
+                    }
+                }
+            }
+            
+            saveState += "?";
+
+            //Create active pieces part of the state string
+            foreach (UIElement child in canvasBoard.Children.ToList())
+            {
+                Image pieceImage = new Image();
+
+                if (pieceImage.GetType() == child.GetType())
+                {
+                    pieceImage = child as Image;
+                    PieceClass pieceInfo = pieceImage.Tag as PieceClass;
+                    saveState += pieceInfo.pieceType.ToString() + "," + pieceInfo.hasMoved.ToString() + "," + pieceInfo.position.row + "," + pieceInfo.position.col
+                        + "," + pieceInfo.team.ToString() + "|";
+                }
+            }
+            
+            return saveState;
         }
 
         private void LoadSavedPieces(String gridData)
         {
-            //gridData is in this format: "team1Color,team2color|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
-            String[] piecesArray = gridData.Split('|').ToArray();
-            String team1Color = piecesArray[0].Split(',')[0];
-            String team2Color = piecesArray[0].Split(',')[1];
-            piecesArray[0] = "";
+            //gridData is in this format: "team1Color,team2color?capturedPieceType,team|capturedPieceType,team?pieceType,hasMoved,row,col,team|pieceType,hasMoved,row,col,team|" etc...
+            //"team" will always be black or white (white is on bottom of the main page)
+            var obj = App.Current as App;
+            String[] dataArray = gridData.Split('?');
+            String[] piecesArray = dataArray[2].Split('|');
+            String[] capturedPiecesArray = dataArray[1].Split('|');
+            //dataArray[1] is the string array of captured pieces
 
-            PieceClass piece;
+            if (!loadedFromSaveState)
+            {
+                obj.passedColors.TeamOne = dataArray[0].Split(',')[0];
+                obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
+            }
+
+            //canvasBoard.Children.Clear();
+            //CanvasSetUp();
+
+            foreach (String captured in capturedPiecesArray)
+            {
+                if (!string.IsNullOrWhiteSpace(captured))
+                {
+                    String[] splitCaptured = captured.Split(',');
+                    PieceClass piece = new PieceClass();
+
+                    #region Creating captured piece from string
+                    switch (splitCaptured[0])
+                    {
+                        case "Pawn":
+                            piece.pieceType = Piece.Pawn;
+                            break;
+                        case "Rook":
+                            piece.pieceType = Piece.Rook;
+                            break;
+                        case "Knight":
+                            piece.pieceType = Piece.Knight;
+                            break;
+                        case "Bishop":
+                            piece.pieceType = Piece.Bishop;
+                            break;
+                        case "Queen":
+                            piece.pieceType = Piece.Queen;
+                            break;
+                        case "King":
+                            piece.pieceType = Piece.King;
+                            break;
+                    }
+
+                    if (splitCaptured[1] == "white")
+                    {
+                        piece.team = Team.White;
+                    }
+                    else
+                    {
+                        piece.team = Team.Black;
+                    }
+                    #endregion
+
+                    AddCapturedImage(piece);
+                    grid.UpdateActiveListFromSaveState(piece);
+                }
+            }
 
             foreach (String pieceString in piecesArray)
             {
-                //Read only data sets after team colors entry (slot 0 of array)
-                if (pieceString.Count() > 0)
+                if (!string.IsNullOrWhiteSpace(pieceString))
                 {
                     String[] splitPieceString = pieceString.Split(',');
-                    piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
+                    PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
 
+                    #region Creating the piece from the string...
                     switch (splitPieceString[0])
                     {
                         case "Pawn":
@@ -225,12 +348,52 @@ namespace UltimateChess
                         piece.team = Team.Black;
                         piece.position.team = Team.Black;
                     }
-                }
+                    #endregion
+
+                    Image savedPieceImage = new Image();
+                    savedPieceImage.Tag = piece;
+                    savedPieceImage = SetImageProperties(savedPieceImage, piece.position);
+                    canvasBoard.Children.Add(savedPieceImage);
+                    //Add piece to grid model
+                    grid.AddSavedPiece(piece);
+                }                
             }
 
+            grid.SetEmptyGridCellsBlank();
         }
 
         #region NavigationHelper registration
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            navigationHelper.OnNavigatedTo(e);
+
+            //if (loaded)
+            //{
+            //    var obj = App.Current as App;
+            //    teamOneColor = obj.passedColors.TeamOne;
+            //    teamTwoColor = obj.passedColors.TeamTwo;
+
+            //    foreach (UIElement child in canvasBoard.Children.ToList())
+            //    {
+            //        Image i = new Image();
+            //        if (child.GetType() == i.GetType())
+            //        {
+            //            i = child as Image;
+            //            canvasBoard.Children.Remove(i);
+            //            Image newImage = new Image();
+            //            PieceClass p = new PieceClass();
+            //            p = i.Tag as PieceClass;
+            //            newImage.Tag = i.Tag;
+            //            canvasBoard.Children.Add(SetImageProperties(newImage, p.position));
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    loaded = true;
+            //}
+        }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
@@ -271,11 +434,6 @@ namespace UltimateChess
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
             Application.Current.Exit();
-        }
-
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-
         }
 
         private void canvasBoard_PointerPressed(object sender, PointerRoutedEventArgs e)
@@ -453,7 +611,7 @@ namespace UltimateChess
             else
             {
                 String type = piece.pieceType.ToString();
-                if (capturedWhitePieces.Contains(type))
+                if (capturedBlackPieces.Contains(type))
                 {
                     //Increase piece counter
                     IncrementCapturedCounter(type, piece.team);
@@ -502,7 +660,7 @@ namespace UltimateChess
                             testType = "x" + Convert.ToString(num);
 
                             box.Text = testType;
-                            box.Tag = Convert.ToString(((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
+                            box.Tag = position + "|" + type;
                             Canvas.SetLeft(box, 0);
                             Canvas.SetTop(box, (pos));
                             whiteCapturedCanvas.Children.Add(box);
@@ -533,7 +691,7 @@ namespace UltimateChess
                             testType = "x" + Convert.ToString(num);
 
                             box.Text = testType;
-                            box.Tag = Convert.ToString(((blackCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
+                            box.Tag = position + "|" + type;
                             Canvas.SetLeft(box, squareSize);
                             Canvas.SetTop(box, (pos));
                             blackCapturedCanvas.Children.Add(box);
@@ -656,6 +814,7 @@ namespace UltimateChess
         private Image SetImageProperties(Image image, Coordinate coord)
         {
             PieceClass imagePiece = image.Tag as PieceClass;
+            var obj = App.Current as App;
 
             if (imagePiece.team == Team.White)
             {
@@ -663,7 +822,7 @@ namespace UltimateChess
                 {
                     case Piece.Pawn:
                         //Add White pawn to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -672,7 +831,7 @@ namespace UltimateChess
                         return image;
                     case Piece.Bishop:
                         //Add White bishop to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishop" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishop" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -681,7 +840,7 @@ namespace UltimateChess
                         return image;
                     case Piece.King:
                         //Add White king to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/king" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/king" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -690,7 +849,7 @@ namespace UltimateChess
                         return image;
                     case Piece.Knight:
                         //Add White knight to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knight" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knight" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -699,7 +858,7 @@ namespace UltimateChess
                         return image;
                     case Piece.Queen:
                         //Add White queen to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -708,7 +867,7 @@ namespace UltimateChess
                         return image;
                     case Piece.Rook:
                         //Add White Rook
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rook" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rook" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -723,7 +882,7 @@ namespace UltimateChess
                 {
                     case Piece.Pawn:
                         //Add Black pawn to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -732,7 +891,7 @@ namespace UltimateChess
                         return image;
                     case Piece.Bishop:
                         //Add Black bishop to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishop" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishop" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -741,7 +900,7 @@ namespace UltimateChess
                         return image;
                     case Piece.King:
                         //Add Black king to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/king" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/king" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -750,7 +909,7 @@ namespace UltimateChess
                         return image;
                     case Piece.Knight:
                         //Add Black knight to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knight" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knight" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -759,7 +918,7 @@ namespace UltimateChess
                         return image;
                     case Piece.Queen:
                         //Add Black queen to canvas
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -768,7 +927,7 @@ namespace UltimateChess
                         return image;
                     case Piece.Rook:
                         //Add Black Rook
-                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rook" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                        image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rook" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
                         image.Tag = imagePiece;
                         Canvas.SetTop(image, coord.row * squareSize);
@@ -795,7 +954,7 @@ namespace UltimateChess
                 imagePiece.team = Team.Black;
 
                 //Add Black pawn to canvas
-                pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                 imagePiece.position = new Coordinate() { row = 1, col = i, team = Team.Black };
                 pawn.Tag = imagePiece;
                 Canvas.SetTop(pawn, squareSize);
@@ -808,7 +967,7 @@ namespace UltimateChess
                 imagePiece.team = Team.White;
 
                 //Add White pawn to canvas
-                pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                pawn = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                 imagePiece.position = new Coordinate() { row = 6, col = i, team = Team.White };
                 pawn.Tag = imagePiece;
                 Canvas.SetTop(pawn, 6 * squareSize);
@@ -839,7 +998,7 @@ namespace UltimateChess
                 imagePiece.team = Team.Black;
 
                 //Add Black Rook
-                Image blackRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rook" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                Image blackRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rook" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                 imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
                 blackRook.Tag = imagePiece;
                 Canvas.SetTop(blackRook, 0);
@@ -852,7 +1011,7 @@ namespace UltimateChess
                 imagePiece.team = Team.White;
 
                 //Add White Rook
-                Image whiteRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rook" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                Image whiteRook = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/rook" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                 imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
                 whiteRook.Tag = imagePiece;
                 Canvas.SetTop(whiteRook, 7 * squareSize);
@@ -878,7 +1037,7 @@ namespace UltimateChess
                 imagePiece.team = Team.Black;
 
                 //Add Black Knight
-                Image blackKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knight" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                Image blackKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knight" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                 imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
                 blackKnight.Tag = imagePiece;
                 Canvas.SetTop(blackKnight, 0);
@@ -891,7 +1050,7 @@ namespace UltimateChess
                 imagePiece.team = Team.White;
 
                 //Add White Knight
-                Image whiteKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knight" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                Image whiteKnight = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/knight" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                 imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
                 whiteKnight.Tag = imagePiece;
                 Canvas.SetTop(whiteKnight, 7 * squareSize);
@@ -917,7 +1076,7 @@ namespace UltimateChess
                 imagePiece.team = Team.Black;
 
                 //Add Black Bishop
-                Image blackBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishop" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+                Image blackBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishop" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                 imagePiece.position = new Coordinate() { row = 0, col = i, team = Team.Black };
                 blackBishop.Tag = imagePiece;
                 Canvas.SetTop(blackBishop, 0);
@@ -930,7 +1089,7 @@ namespace UltimateChess
                 imagePiece.team = Team.White;
 
                 //Add White Bishop
-                Image whiteBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishop" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+                Image whiteBishop = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/bishop" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                 imagePiece.position = new Coordinate() { row = 7, col = i, team = Team.White };
                 whiteBishop.Tag = imagePiece;
                 Canvas.SetTop(whiteBishop, 7 * squareSize);
@@ -947,7 +1106,7 @@ namespace UltimateChess
             imagePiece.team = Team.Black;
 
             //Add Black Queen
-            Image blackQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+            Image blackQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
             imagePiece.position = new Coordinate() { row = 0, col = 3, team = Team.Black };
             blackQueen.Tag = imagePiece;
             Canvas.SetTop(blackQueen, 0);
@@ -960,7 +1119,7 @@ namespace UltimateChess
             imagePiece.team = Team.White;
 
             //Add White Queen
-            Image whiteQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+            Image whiteQueen = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/queen" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
             imagePiece.position = new Coordinate() { row = 7, col = 3, team = Team.White };
             whiteQueen.Tag = imagePiece;
             Canvas.SetTop(whiteQueen, 7 * squareSize);
@@ -973,7 +1132,7 @@ namespace UltimateChess
             imagePiece.team = Team.Black;
 
             //Add Black King
-            Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/king" + teamTwoColor + ".png")), Width = squareSize, Height = squareSize };
+            Image blackKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/king" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
             imagePiece.position = new Coordinate() { row = 0, col = 4, team = Team.Black };
             blackKing.Tag = imagePiece;
             Canvas.SetTop(blackKing, 0);
@@ -986,7 +1145,7 @@ namespace UltimateChess
             imagePiece.team = Team.White;
 
             //Add White King
-            Image whiteKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/king" + teamOneColor + ".png")), Width = squareSize, Height = squareSize };
+            Image whiteKing = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/king" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
             imagePiece.position = new Coordinate() { row = 7, col = 4, team = Team.White };
             whiteKing.Tag = imagePiece;
             Canvas.SetTop(whiteKing, 7 * squareSize);
@@ -995,33 +1154,21 @@ namespace UltimateChess
             canvasBoard.Children.Add(whiteKing);
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+        private void page_Loaded(object sender, RoutedEventArgs e)
         {
-            if (loaded)
+            CanvasSetUp();
+            CapturedCanvasSetUp();
+
+            if (loadedFromSaveState)
             {
-                //navigationHelper.OnNavigatedTo(e);
-                var obj = App.Current as App;
-                teamOneColor = obj.passedColors.TeamOne;
-                teamTwoColor = obj.passedColors.TeamTwo;
-
-
-                foreach (UIElement child in canvasBoard.Children.ToList())
-                {
-                    Image i = new Image();
-                    if (child.GetType() == i.GetType())
-                    {
-                        i = child as Image;
-                        canvasBoard.Children.Remove(i);
-                        Image newImage = new Image();
-                        PieceClass p = new PieceClass();
-                        p = i.Tag as PieceClass;
-                        newImage.Tag = i.Tag;
-                        canvasBoard.Children.Add(SetImageProperties(newImage, p.position));
-                    }
-                }
+                grid.StartIfSaveData();
+                LoadSavedPieces(savedPiecesString);
             }
-            loaded = true;
-
+            else
+            {
+                LoadPieceImages();
+                grid.Start();
+            }
         }
     }
 }
