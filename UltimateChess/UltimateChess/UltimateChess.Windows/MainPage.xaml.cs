@@ -154,8 +154,8 @@ namespace UltimateChess
 
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            e.PageState["piecesOnGrid"] = "orange,black|King,false,6,0,black|Queen,false,6,4,black";
-            //e.PageState["piecesOnGrid"] = SavePiecesState();
+            //e.PageState["piecesOnGrid"] = "orange,black|King,false,6,0,black|Queen,false,6,4,black";
+            e.PageState["piecesOnGrid"] = SavePiecesState();
         }
 
         private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
@@ -177,12 +177,32 @@ namespace UltimateChess
         private String SavePiecesState()
         {
             //TODO: remove this generic statement
-            return null;
+            String saveState = "";
+            var obj = App.Current as App;
+            saveState += obj.passedColors.TeamOne + "," + obj.passedColors.TeamTwo + "?";
+
+
+
+            //Create active pieces part of the state string
+            foreach (UIElement child in canvasBoard.Children.ToList())
+            {
+                Image pieceImage = new Image();
+
+                if (pieceImage.GetType() == child.GetType())
+                {
+                    pieceImage = child as Image;
+                    PieceClass pieceInfo = pieceImage.Tag as PieceClass;
+                    saveState += pieceInfo.pieceType.ToString() + "," + pieceInfo.hasMoved.ToString() + "," + pieceInfo.position.row + "," + pieceInfo.position.col
+                        + "," + pieceInfo.team.ToString() + "|";
+                }
+            }
+            
+            return saveState;
         }
 
         private void LoadSavedPieces(String gridData)
         {
-            //gridData is in this format: "team1Color,team2color?capturedpiecetype,team|capturedpiecetype,team?piece,hasMoved,row,col,team|piece,hasMoved,row,col,team|" etc...
+            //gridData is in this format: "team1Color,team2color?capturedPieceType,team|capturedPieceType,team?pieceType,hasMoved,row,col,team|pieceType,hasMoved,row,col,team|" etc...
             //"team" will always be black or white (white is on bottom of the main page)
             var obj = App.Current as App;
             String[] dataArray = gridData.Split('?');
@@ -190,58 +210,62 @@ namespace UltimateChess
             String[] capturedPiecesArray = dataArray[1].Split('|');
             //dataArray[1] is the string array of captured pieces
 
-            //obj.passedColors.TeamOne = dataArray[0].Split(',')[0];
-            //obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
-
-
-            //canvasBoard.Children.Clear();
-            //CanvasSetUp();
+            obj.passedColors.TeamOne = dataArray[0].Split(',')[0];
+            obj.passedColors.TeamTwo = dataArray[0].Split(',')[1];
+            canvasBoard.Children.Clear();
+            CanvasSetUp();
 
             foreach (String captured in capturedPiecesArray)
             {
-                String[] splitCaptured = captured.Split(',');
-                PieceClass piece = new PieceClass();
-
-                switch (splitCaptured[0])
+                if (!string.IsNullOrWhiteSpace(captured))
                 {
-                    case "Pawn":
-                        piece.pieceType = Piece.Pawn;
-                        break;
-                    case "Rook":
-                        piece.pieceType = Piece.Rook;
-                        break;
-                    case "Knight":
-                        piece.pieceType = Piece.Knight;
-                        break;
-                    case "Bishop":
-                        piece.pieceType = Piece.Bishop;
-                        break;
-                    case "Queen":
-                        piece.pieceType = Piece.Queen;
-                        break;
-                    case "King":
-                        piece.pieceType = Piece.King;
-                        break;
-                }
+                    String[] splitCaptured = captured.Split(',');
+                    PieceClass piece = new PieceClass();
 
-                if (splitCaptured[4] == "white")
-                {
-                    piece.team = Team.White;
-                    piece.position.team = Team.White;
-                }
-                else
-                {
-                    piece.team = Team.Black;
-                    piece.position.team = Team.Black;
-                }
+                    #region Creating captured piece from string
+                    switch (splitCaptured[0])
+                    {
+                        case "Pawn":
+                            piece.pieceType = Piece.Pawn;
+                            break;
+                        case "Rook":
+                            piece.pieceType = Piece.Rook;
+                            break;
+                        case "Knight":
+                            piece.pieceType = Piece.Knight;
+                            break;
+                        case "Bishop":
+                            piece.pieceType = Piece.Bishop;
+                            break;
+                        case "Queen":
+                            piece.pieceType = Piece.Queen;
+                            break;
+                        case "King":
+                            piece.pieceType = Piece.King;
+                            break;
+                    }
 
-                AddCapturedImage(piece);
-                grid.UpdateActiveListFromSaveState(piece);
+                    if (splitCaptured[4] == "white")
+                    {
+                        piece.team = Team.White;
+                        piece.position.team = Team.White;
+                    }
+                    else
+                    {
+                        piece.team = Team.Black;
+                        piece.position.team = Team.Black;
+                    }
+                    #endregion
+
+                    AddCapturedImage(piece);
+                    grid.UpdateActiveListFromSaveState(piece);
+                }
             }
 
             foreach (String pieceString in piecesArray)
             {
-            
+                if (!string.IsNullOrWhiteSpace(pieceString))
+                {
                     String[] splitPieceString = pieceString.Split(',');
                     PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
 
@@ -292,10 +316,10 @@ namespace UltimateChess
                     Image savedPieceImage = new Image();
                     savedPieceImage.Tag = piece;
                     savedPieceImage = SetImageProperties(savedPieceImage, piece.position);
-                    //canvasBoard.Children.Add(savedPieceImage);
+                    canvasBoard.Children.Add(savedPieceImage);
                     //Add piece to grid model
                     grid.AddSavedPiece(piece);
-                
+                }                
             }
 
             grid.SetEmptyGridCellsBlank();
@@ -1091,6 +1115,5 @@ namespace UltimateChess
             Canvas.SetZIndex(whiteKing, 1);
             canvasBoard.Children.Add(whiteKing);
         }
-
     }
 }
