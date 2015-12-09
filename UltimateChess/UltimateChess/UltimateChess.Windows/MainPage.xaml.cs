@@ -181,7 +181,47 @@ namespace UltimateChess
             var obj = App.Current as App;
             saveState += obj.passedColors.TeamOne + "," + obj.passedColors.TeamTwo + "?";
 
+            TextBox box = new TextBox();
 
+            foreach (UIElement child in whiteCapturedCanvas.Children.ToList())
+            {
+                if (box.GetType() == child.GetType())
+                {
+                    box = child as TextBox;
+                    String posType = box.Tag as String;
+                    String type = posType.Split('|')[1];
+
+                    String boxText = box.Text;
+                    String count = boxText.Split('x')[1];
+                    int num = Convert.ToInt32(count);
+                    
+                    for(int i = 0; i < num; i++)
+                    {
+                        saveState += type + ",White|";
+                    }
+                }
+            }
+
+            foreach (UIElement child in blackCapturedCanvas.Children.ToList())
+            {
+                if (box.GetType() == child.GetType())
+                {
+                    box = child as TextBox;
+                    String posType = box.Tag as String;
+                    String type = posType.Split('|')[1];
+
+                    String boxText = box.Text;
+                    String count = boxText.Split('x')[1];
+                    int num = Convert.ToInt32(count);
+
+                    for (int i = 0; i < num; i++)
+                    {
+                        saveState += type + ",Black|";
+                    }
+                }
+            }
+            
+            saveState += "?";
 
             //Create active pieces part of the state string
             foreach (UIElement child in canvasBoard.Children.ToList())
