@@ -17,7 +17,7 @@ namespace UltimateChess
     /// </summary>
     public sealed partial class App : Application
     {
-
+        public PassedColors passedColors = new PassedColors();
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -27,8 +27,10 @@ namespace UltimateChess
         {
             this.InitializeComponent();
             this.Suspending += this.OnSuspending;
+            passedColors.TeamOne = "White";
+            passedColors.TeamTwo = "Black";
         }
-
+        
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used when the application is launched to open a specific file, to display
@@ -113,5 +115,11 @@ namespace UltimateChess
             // TODO: Save application state and stop any background activity
             deferral.Complete();
         }
+    }
+
+    public class PassedColors
+    {
+        public string TeamOne;
+        public string TeamTwo;
     }
 }
