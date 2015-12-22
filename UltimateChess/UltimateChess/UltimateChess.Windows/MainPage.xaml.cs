@@ -296,6 +296,7 @@ namespace UltimateChess
 
                     AddCapturedImage(piece);
                     grid.UpdateActiveListFromSaveState(piece);
+                    //piece = null;
                 }
             }
 
@@ -304,7 +305,8 @@ namespace UltimateChess
                 if (!string.IsNullOrWhiteSpace(pieceString))
                 {
                     String[] splitPieceString = pieceString.Split(',');
-                    PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]), col = Convert.ToInt32(splitPieceString[3]) } };
+                    PieceClass piece = new PieceClass() { position = new Coordinate() { row = Convert.ToInt32(splitPieceString[2]),
+                        col = Convert.ToInt32(splitPieceString[3]) } };
 
                     #region Creating the piece from the string...
                     switch (splitPieceString[0])
@@ -352,12 +354,13 @@ namespace UltimateChess
 
                     Image savedPieceImage = new Image();
                     savedPieceImage.Tag = piece;
-                    savedPieceImage = SetImageProperties(savedPieceImage, piece.position);
+                    Coordinate position = piece.position;
+                    savedPieceImage = SetImageProperties(savedPieceImage, position, true);
                     canvasBoard.Children.Add(savedPieceImage);
                     //Add piece to grid model
                     grid.AddSavedPiece(piece);
-                    piece = null;
-                    savedPieceImage = null;
+                    //savedPieceImage = null;
+                    //piece = null;
                 }                
             }
 
@@ -441,7 +444,6 @@ namespace UltimateChess
         private void canvasBoard_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             Image clickedImage = new Image();
-            Rectangle rect = new Rectangle();
             SolidColorBrush gray = new SolidColorBrush(Colors.Gray);
             SolidColorBrush white = new SolidColorBrush(Colors.White);
             List<Coordinate> moves = new List<Coordinate>();
@@ -472,9 +474,10 @@ namespace UltimateChess
                         MoveImages(null, clickedImage, moves, white, gray, true);
                         AddCapturedImage(p);
                         continueCode = false;
-
                     }
                 }
+
+                p = null;
 
                 if (continueCode)
                 {
@@ -487,21 +490,29 @@ namespace UltimateChess
                 if (!firstClick)
                 {
                     //Clicked on rectangle
+                    Rectangle rect = new Rectangle();
                     rect = e.OriginalSource as Rectangle;
                     Coordinate coord = rect.Tag as Coordinate;
+                    //int coordX = coord.row;
+                    //int coordY = coord.col;
+                    //Team coordTeam = coord.team;
+                    //coord = null;
+                    //coord = new Coordinate() { row = coordX, col = coordY, team = coordTeam };
                     moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
 
                     if (moves.Exists(x => (x.row == coord.row && x.col == coord.col)))
                     {
-                        grid.DetermineAction(firstCoordinate, coord, firstCoordinate.team);
                         MoveImages(rect, new Image(), moves, white, gray, false);
+                        grid.DetermineAction(firstCoordinate, coord, firstCoordinate.team);
                     }
                     else
                     {
                         ResetHighlightedSquares(white, gray);
-                        moves.Clear();
                         firstClick = true;
                     }
+                    coord = null;
+                    moves.Clear();
+                    rect = null;
                 }
                 else
                 {
@@ -509,10 +520,12 @@ namespace UltimateChess
                     firstClick = true;
                 }
             }
+
+            clickedImage = null;
         }
 
         //Move a piece (standard move action) or pieces (attack move action)
-        async private void MoveImages(Rectangle rect, Image clickedImage, List<Coordinate> moves, SolidColorBrush white, SolidColorBrush gray, bool isAttack)
+        private async void MoveImages(Rectangle rect, Image clickedImage, List<Coordinate> moves, SolidColorBrush white, SolidColorBrush gray, bool isAttack)
         {
             if (!isAttack)
             {
@@ -529,7 +542,7 @@ namespace UltimateChess
                         if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
                         {
                             canvasBoard.Children.Remove(child);
-                            canvasBoard.Children.Add(SetImageProperties(clickedImage, p));
+                            canvasBoard.Children.Add(SetImageProperties(clickedImage, p, false));
                             ResetHighlightedSquares(white, gray);
                             firstClick = true;
                             break;
@@ -553,7 +566,7 @@ namespace UltimateChess
                         if (tagInfo.position.row == firstCoordinate.row && tagInfo.position.col == firstCoordinate.col)
                         {
                             canvasBoard.Children.Remove(child);
-                            canvasBoard.Children.Add(SetImageProperties(clickedImage, imagePiece.position));
+                            canvasBoard.Children.Add(SetImageProperties(clickedImage, imagePiece.position, false));
                             ResetHighlightedSquares(white, gray);
                             firstClick = true;
                         }
@@ -585,7 +598,7 @@ namespace UltimateChess
         {
             Image cappedImage = new Image();
             cappedImage.Tag = piece;
-            cappedImage = SetImageProperties(cappedImage, new Coordinate() { row = 0, col = 0 });
+            cappedImage = SetImageProperties(cappedImage, new Coordinate() { row = 0, col = 0 }, false);
 
             if (piece.team == Team.White)
             {
@@ -602,7 +615,7 @@ namespace UltimateChess
                     TextBox textBox = new TextBox();
                     textBox.Text = "x1";
                     textBox.Tag = Convert.ToString(((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
-                    Canvas.SetLeft(textBox, 0);
+                    Canvas.SetLeft(textBox, squareSize / 4);
                     Canvas.SetTop(textBox, (((whiteCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)));
                     whiteCapturedCanvas.Children.Add(textBox);
 
@@ -626,7 +639,7 @@ namespace UltimateChess
                     TextBox textBox = new TextBox();
                     textBox.Text = "x1";
                     textBox.Tag = Convert.ToString(((blackCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)) + "|" + type;
-                    Canvas.SetLeft(textBox, squareSize);
+                    Canvas.SetLeft(textBox, (squareSize + (squareSize / 4)));
                     Canvas.SetTop(textBox, (((blackCapturedCanvas.Children.Count() / 2) * squareSize) + (squareSize / 2)));
                     blackCapturedCanvas.Children.Add(textBox);
 
@@ -664,7 +677,7 @@ namespace UltimateChess
 
                             box.Text = testType;
                             box.Tag = position + "|" + type;
-                            Canvas.SetLeft(box, 0);
+                            Canvas.SetLeft(box, squareSize / 4);
                             Canvas.SetTop(box, (pos));
                             whiteCapturedCanvas.Children.Add(box);
                             break;
@@ -695,7 +708,7 @@ namespace UltimateChess
 
                             box.Text = testType;
                             box.Tag = position + "|" + type;
-                            Canvas.SetLeft(box, squareSize);
+                            Canvas.SetLeft(box, squareSize + (squareSize / 4));
                             Canvas.SetTop(box, (pos));
                             blackCapturedCanvas.Children.Add(box);
                             break;
@@ -814,7 +827,7 @@ namespace UltimateChess
             }
         }
 
-        private Image SetImageProperties(Image image, Coordinate coord)
+        private Image SetImageProperties(Image image, Coordinate coord, bool loadState)
         {
             PieceClass imagePiece = image.Tag as PieceClass;
             var obj = App.Current as App;
@@ -828,7 +841,7 @@ namespace UltimateChess
                         image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + obj.passedColors.TeamOne + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.White };
 
-                        if (!imagePiece.hasMoved)
+                        if (!imagePiece.hasMoved && !loadState)
                         {
                             imagePiece.hasMoved = true;
                         }
@@ -894,7 +907,7 @@ namespace UltimateChess
                         image = new Image { Source = new BitmapImage(new Uri("ms-appx:///Images/pawn" + obj.passedColors.TeamTwo + ".png")), Width = squareSize, Height = squareSize };
                         imagePiece.position = new Coordinate() { row = coord.row, col = coord.col, team = Team.Black };
 
-                        if (!imagePiece.hasMoved)
+                        if (!imagePiece.hasMoved && !loadState)
                         {
                             imagePiece.hasMoved = true;
                         }

@@ -661,7 +661,6 @@ namespace UltimateChess
             grid[destination.row, destination.col].position = destination;
 
             grid[source.row, source.col] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = source };
-            
         }
 
         private void CheckForCheck(Team player)
@@ -965,20 +964,25 @@ namespace UltimateChess
             {
                 blackActive.Add(piece);
             }
+            piece = null;
         }
         //If a piece was saved in the saved data in controller, add the piece at its coordinate in the grid
         public void AddSavedPiece(PieceClass savedPiece)
         {
-            grid[savedPiece.position.row, savedPiece.position.col] = savedPiece;
+            PieceClass newSavedPiece = new PieceClass() { hasMoved = savedPiece.hasMoved, pieceType = savedPiece.pieceType,
+                    position = savedPiece.position, team = savedPiece.team };
+            savedPiece = null;
+            grid[newSavedPiece.position.row, newSavedPiece.position.col] = newSavedPiece;
 
-            if (savedPiece.team == Team.White)
+            if (newSavedPiece.team == Team.White)
             {
-                whiteActive.Add(savedPiece);
+                whiteActive.Add(newSavedPiece);
             }
             else
             {
-                blackActive.Add(savedPiece);
+                blackActive.Add(newSavedPiece);
             }
+            newSavedPiece = null;
         }
 
         public void SetEmptyGridCellsBlank()
@@ -992,7 +996,6 @@ namespace UltimateChess
                         grid[rowCount, colCount] = new PieceClass { pieceType = Piece.Blank, team = Team.Blank, position = new Coordinate { row = rowCount, col = colCount, team = Team.Blank } };
                     }
                 }
-
             }
         }
 
