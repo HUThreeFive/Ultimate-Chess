@@ -8,12 +8,14 @@ namespace UltimateChess
 {
     public class GridModel
     {
-        private const int NUM_CELLS = 8;
-        private PieceClass[,] grid;
         public bool isBlackInCheck = false;
         public bool isWhiteInCheck = false;
+        public Team currentPlayerTurn = Team.White;
         public List<PieceClass> whiteCaptured = new List<PieceClass>();
         public List<PieceClass> blackCaptured = new List<PieceClass>();
+
+        private const int NUM_CELLS = 8;
+        private PieceClass[,] grid;
         private List<PieceClass> whiteActive = new List<PieceClass>();
         private List<PieceClass> blackActive = new List<PieceClass>();
 
@@ -24,6 +26,7 @@ namespace UltimateChess
             whiteActive.Clear();
             blackActive.Clear();
             InitializeGrid();
+            currentPlayerTurn = Team.White;
         }
 
         public void StartIfSaveData()
@@ -615,6 +618,15 @@ namespace UltimateChess
             else
             {
                 Attack(playerPiece, destination, player);
+            }
+
+            if (currentPlayerTurn == Team.White)
+            {
+                currentPlayerTurn = Team.Black;
+            }
+            else
+            {
+                currentPlayerTurn = Team.White;
             }
 
             //CheckForCheck(player);

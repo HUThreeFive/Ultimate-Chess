@@ -30,19 +30,20 @@ namespace UltimateChess
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        public Coordinate firstCoordinate;
+        public GridModel grid;
+        public bool firstClick = true;
+        public App obj = App.Current as App;
+
         private NavigationHelper navigationHelper;
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
-        public bool firstClick = true;
-        public Coordinate firstCoordinate;
         private int squareSize;
-        public GridModel grid;
+        private String savedPiecesString = "";
         private List<String> capturedWhitePieces = new List<String>();
         private List<String> capturedBlackPieces = new List<String>();
         private string teamOneColor = "White";
         private string teamTwoColor = "Black";
-        bool loadedFromSaveState = false;
-        public App obj = App.Current as App;
-        String savedPiecesString = "";
+        private bool loadedFromSaveState = false;
 
         /// <summary>
         /// This can be changed to a strongly typed view model.
@@ -441,7 +442,7 @@ namespace UltimateChess
             Application.Current.Exit();
         }
 
-        private void canvasBoard_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private async void canvasBoard_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             Image clickedImage = new Image();
             SolidColorBrush gray = new SolidColorBrush(Colors.Gray);
@@ -450,16 +451,27 @@ namespace UltimateChess
 
             if (clickedImage.GetType() == e.OriginalSource.GetType())
             {
+                //Code for if a chess piece image was clicked
                 clickedImage = e.OriginalSource as Image;
                 PieceClass p = clickedImage.Tag as PieceClass;
                 bool continueCode = true;
 
                 if (firstClick)
                 {
-                    moves = new List<Coordinate>(grid.PossibleMoves(p.position, p.position.team));
-                    firstCoordinate = new Coordinate { row = p.position.row, col = p.position.col, team = p.team };
-                    firstClick = false;
-                    continueCode = true;
+                    if (p.team == grid.currentPlayerTurn)
+                    {
+                        moves = new List<Coordinate>(grid.PossibleMoves(p.position, p.position.team));
+                        firstCoordinate = new Coordinate { row = p.position.row, col = p.position.col, team = p.team };
+                        firstClick = false;
+                        continueCode = true;
+                    }
+                    else
+                    {
+                        //NOT YOUR MOVE
+                        var dialog = new MessageDialog("", "Patience!");
+                        dialog.Content += "It is " + grid.currentPlayerTurn.ToString() + "'s turn." + " Please wait for your turn.";
+                        await dialog.ShowAsync();
+                    }
                 }
                 else
                 {
@@ -493,11 +505,6 @@ namespace UltimateChess
                     Rectangle rect = new Rectangle();
                     rect = e.OriginalSource as Rectangle;
                     Coordinate coord = rect.Tag as Coordinate;
-                    //int coordX = coord.row;
-                    //int coordY = coord.col;
-                    //Team coordTeam = coord.team;
-                    //coord = null;
-                    //coord = new Coordinate() { row = coordX, col = coordY, team = coordTeam };
                     moves = new List<Coordinate>(grid.PossibleMoves(firstCoordinate, firstCoordinate.team));
 
                     if (moves.Exists(x => (x.row == coord.row && x.col == coord.col)))
@@ -510,6 +517,7 @@ namespace UltimateChess
                         ResetHighlightedSquares(white, gray);
                         firstClick = true;
                     }
+
                     coord = null;
                     moves.Clear();
                     rect = null;
